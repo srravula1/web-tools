@@ -12,6 +12,7 @@ import mediaTypeStoryCounts from './mediaTypeStoryCounts';
 import workflow from './workflow';
 import mediaTypes from './mediaTypes';
 import matchingStoriesConfigWorkflow from './matchingStoriesConfigWorkflow';
+import matchingStoriesProbableWords from './matchingStoriesProbableWords';
 
 const createFocusReducer = combineReducers({
   matchingStories,
@@ -27,6 +28,7 @@ const createFocusReducer = combineReducers({
   workflow,
   mediaTypes,
   matchingStoriesConfigWorkflow,
+  matchingStoriesProbableWords,
 });
 
 export default createFocusReducer;

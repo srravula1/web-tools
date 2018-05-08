@@ -391,3 +391,12 @@ export function topicTopStoriesOnDates(topicId, params) {
   const acceptedParams = acceptParams(params, ['startTimestamp', 'endTimestamp', 'snapshotId', 'timespanId', 'focusId', 'sort', 'limit', 'q', 'selectedTimespanId']);
   return createApiPromise(`/api/topics/${topicId}/stories/top-on-dates`, acceptedParams);
 }
+export function matchingStoriesProbableWords(topicId, focalSetName) {
+  // const acceptedParams = acceptParams(params, ['focalSetName']);
+  return createApiPromise(`/api/topics/${topicId}/focal-sets/${focalSetName}/matching-stories/prob-words`);
+}
+
+// TODO
+// export function topicPreviewMatchingStoriesTestSample() {
+//   return createApiPromise(`api/topics/${topicId}/focal-sets/matching-stories/preview/test-sample`)
+// }

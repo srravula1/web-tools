@@ -6,8 +6,10 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import AppButton from '../../../../../common/AppButton';
 import composeIntlForm from '../../../../../common/IntlForm';
+import composeAsyncContainer from '../../../../../common/AsyncContainer';
 // import messages from '../../../../../../resources/messages';
 import { notEmptyString } from '../../../../../../lib/formValidators';
+import { fetchMatchingStoriesProbableWords } from '../../../../../../actions/topics/matchingStoriesActions';
 import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
 
 const formSelector = formValueSelector('snapshotFocus');
@@ -21,52 +23,69 @@ const localMessages = {
   directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 25 stories manually to train our machine learning model. You can use this template to format the data' },
 };
 
+const FOCALSET_NAME = 'economic-impact';
 
 class UnderstandMatchingStoriesContainer extends React.Component {
 
-  onUploadCSV = () => {
-    console.log('upload csv button was pressed');
-    // want to update state of 'nextButtonDisabled' if file name is success
+  componentWillMount = () => {
+    console.log('component mounting...');
   }
 
   render() {
-    const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep } = this.props;
+    const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep, probableWords } = this.props;
     // const { formatMessage } = this.props.intl;
     // const nextButtonDisabled = true;
     return (
       <Grid>
-        <form className="focus-create-understand-matchingStories" name="focusCreateUnderstandMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
-          <Row>
-            <Col lg={10}>
-              <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
-              <p>
-                <FormattedMessage {...localMessages.about} />
-              </p>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <p> {'Stories including these words are likely to be classified as your topic: '} </p>
-              <code> {'freedom free speech Europen court'} </code>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <p> {'Stories including these words are likely to NOT be classified as your topic: '} </p>
-              <code> {'cupcake iPhone holidays horror-thriller obliterated'} </code>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <br />
-              <p> {'Do these words seem correct?'} </p>
-              <p> {'If the words are correct, you can proceed to validating the model. If they are incorrect, you can upload a new set of training data.'} </p>
-              <AppButton flat onClick={handlePreviousStep} label={'No they are incorrect'} />
-              &nbsp; &nbsp;
-              <AppButton type="submit" label={'Yes they are correct'} primary />
-            </Col>
-          </Row>
-        </form>
+        <Row center="lg">
+          <Col lg={8}>
+            <form className="focus-create-understand-matchingStories" name="focusCreateUnderstandMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
+              <Row start="lg">
+                <Col lg={12}>
+                  <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
+                </Col>
+              </Row>
+              <Row start="lg">
+                <Col lg={12}>
+                  <b> {'Stories including these words are likely to be classified as your topic: '} </b>
+                  <code>
+                    <table>
+                      <tbody>
+                        <tr>
+                          {probableWords[0].map(word => <td key={word}>{word}</td>)}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </code>
+                </Col>
+              </Row>
+              <Row start="lg">
+                <Col lg={12}>
+                  <b> {'Stories including these words are likely to NOT be classified as your topic: '} </b>
+                  <code>
+                    <table>
+                      <tbody>
+                        <tr>
+                          {probableWords[1].map(word => <td key={word}>{word}</td>)}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </code>
+                </Col>
+              </Row>
+              <Row start="lg">
+                <Col lg={12}>
+                  <br />
+                  <b> {'Do these words seem correct?'} </b>
+                  <p> {'If the words are correct, you can proceed to validating the model. If they are incorrect, you can upload a new set of training data.'} </p>
+                  <AppButton flat onClick={handlePreviousStep} label={'No they are incorrect'} />
+                  &nbsp; &nbsp;
+                  <AppButton type="submit" label={'Yes they are correct'} primary />
+                </Col>
+              </Row>
+            </form>
+          </Col>
+        </Row>
       </Grid>
     );
   }
@@ -81,9 +100,13 @@ UnderstandMatchingStoriesContainer.propTypes = {
   formData: PropTypes.object,
   currentKeywords: PropTypes.string,
   currentFocalTechnique: PropTypes.string,
+  probableWords: PropTypes.array.isRequired,
+  fetchStatus: PropTypes.string.isRequired,
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
+  fetchProbableWords: PropTypes.func.isRequired,
+  asyncFetch: PropTypes.func.isRequired,
   // from compositional helper
   intl: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
@@ -94,14 +117,22 @@ const mapStateToProps = state => ({
   formData: state.form.snapshotFocus,
   currentKeywords: formSelector(state, 'keywords'),
   currentFocalTechnique: formSelector(state, 'focalTechnique'),
+  fetchStatus: state.topics.selected.focalSets.create.matchingStoriesProbableWords.fetchStatus,
+  probableWords: state.topics.selected.focalSets.create.matchingStoriesProbableWords.list,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch, ownProps) => ({
   handlePreviousStep: () => {
     dispatch(goToMatchingStoriesConfigStep(0));
   },
   handleNextStep: () => {
     dispatch(goToMatchingStoriesConfigStep(2));
+  },
+  fetchProbableWords: (topicId, focalSetName) => {
+    dispatch(fetchMatchingStoriesProbableWords(topicId, focalSetName));
+  },
+  asyncFetch: () => {
+    dispatch(fetchMatchingStoriesProbableWords(ownProps.topicId, FOCALSET_NAME));
   },
 });
 
@@ -110,7 +141,6 @@ function validate(values) {
   if (!notEmptyString(values.keywords)) {
     errors.keywords = localMessages.errorNoTopicName;
   }
-  // TODO: add csv validation
   return errors;
 }
 
@@ -127,7 +157,9 @@ export default
     composeIntlForm(
       reduxForm(reduxFormConfig)(
         connect(mapStateToProps, mapDispatchToProps)(
-          UnderstandMatchingStoriesContainer
+          composeAsyncContainer(
+            UnderstandMatchingStoriesContainer
+          )
         )
       )
     )
