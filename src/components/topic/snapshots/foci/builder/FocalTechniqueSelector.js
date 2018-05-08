@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { Row, Col } from 'react-flexbox-grid/lib';
 import KeywordSearchIcon from '../../../../common/icons/KeywordSearchIcon';
 import FocalTechniqueDescription from './FocalTechniqueDescription';
-import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE }
+import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE, FOCAL_TECHNIQUE_REFERENCE_SET }
   from '../../../../../lib/focalTechniques';
 // import { assetUrl } from '../../../../../lib/assetUtil';
 
@@ -101,20 +101,18 @@ class FocalTechniqueSelector extends React.Component {
               descriptionMsg={localMessages.mediaTypeDescription}
             />
           </Col>
-          {
-          /*
-          <Col lg={2} md={2} sm={3} xs={6}>
+          <Col lg={3}>
             <FocalTechniqueDescription
               onClick={() => this.handleSelection(FOCAL_TECHNIQUE_REFERENCE_SET)}
               selected={currentFocalTechnique === FOCAL_TECHNIQUE_REFERENCE_SET}
               id="technique-reference-set-upload"
-              image={assetUrl('/static/img/focal-technique-reference-2x.png')}
+              icon={KeywordSearchIcon}
               nameMsg={localMessages.referenceName}
               descriptionMsg={localMessages.referenceDescription}
-              disabled
-              comingSoon
             />
           </Col>
+          { /*
+          image={assetUrl('/static/img/focal-technique-reference-2x.png')}
           <Col lg={2} md={2} sm={3} xs={6}>
             <FocalTechniqueDescription
               onClick={() => this.handleSelection(FOCAL_TECHNIQUE_AUTO_MAGIC)}

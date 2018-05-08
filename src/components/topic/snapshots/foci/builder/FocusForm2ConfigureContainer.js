@@ -8,8 +8,9 @@ import EditRetweetPartisanshipContainer from './retweetPartisanship/EditRetweetP
 import EditTopCountriesContainer from './topCountries/EditTopCountriesContainer';
 import EditNytThemeContainer from './nyttheme/EditNytThemeContainer';
 import EditMediaTypeContainer from './mediaType/EditMediaTypeContainer';
+import MatchingStoriesConfigureWizard from './matchingStories/MatchingStoriesConfigureWizard';
 import { goToCreateFocusStep } from '../../../../../actions/topicActions';
-import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE } from '../../../../../lib/focalTechniques';
+import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE, FOCAL_TECHNIQUE_REFERENCE_SET } from '../../../../../lib/focalTechniques';
 import messages from '../../../../../resources/messages';
 
 const formSelector = formValueSelector('snapshotFocus');
@@ -70,6 +71,16 @@ const FocusForm2ConfigureContainer = (props) => {
           onPreviousStep={handlePreviousStep}
           onNextStep={handleNextStep}
           location={location}
+        />
+      );
+      break;
+    case FOCAL_TECHNIQUE_REFERENCE_SET:
+      content = (
+        <MatchingStoriesConfigureWizard
+          topicId={topicId}
+          initialValues={initialValues}
+          location={location}
+          startStep={0}
         />
       );
       break;

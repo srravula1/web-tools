@@ -18,7 +18,7 @@ const localMessages = {
     defaultMessage: 'After naming your new classification and providing some training data, you will be able to see our model\'s prediction on a sample set of stories.' },
   errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a topic name.' },
   directions: { id: 'focalTechnique.matchingStories.directions', defaultMessage: 'Upload training data' },
-  directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 25 stories manually to train our machine learning model. You can use this template to format the data' },
+  directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 50 stories manually to train our machine learning model. You can use this template to format the data' },
 };
 
 
@@ -26,6 +26,7 @@ class EditMatchingStoriesContainer extends React.Component {
 
   onUploadCSV = () => {
     console.log('upload csv button was pressed');
+    // TODO: add server endpoint to train model
     // want to update state of 'nextButtonDisabled' if file name is success
   }
 
@@ -35,43 +36,47 @@ class EditMatchingStoriesContainer extends React.Component {
     // const nextButtonDisabled = true;
     return (
       <Grid>
-        <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
-          <Row>
-            <Col lg={10}>
-              <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
-              <p>
-                <FormattedMessage {...localMessages.about} />
-              </p>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <Field
-                name="topicName"
-                component={renderTextField}
-                floatingLabelText={'Enter a name'}
-                fullWidth
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <h2><FormattedMessage {...localMessages.directions} /></h2>
-              <p>
-                <FormattedMessage {...localMessages.directionsDetails} />
-              </p>
-              <AppButton onClick={this.onUploadCSV} label={formatMessage(messages.upload)} primary />
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} xs={12}>
-              <br />
-              <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
-              &nbsp; &nbsp;
-              <AppButton type="submit" label={formatMessage(messages.next)} primary />
-            </Col>
-          </Row>
-        </form>
+        <Row center="lg">
+          <Col lg={8}>
+            <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
+              <Row start="lg">
+                <Col lg={12}>
+                  <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
+                  <p>
+                    <FormattedMessage {...localMessages.about} />
+                  </p>
+                </Col>
+              </Row>
+              <Row start="lg">
+                <Col lg={6}>
+                  <Field
+                    name="topicName"
+                    component={renderTextField}
+                    floatingLabelText={'Enter a name'}
+                    fullWidth
+                  />
+                </Col>
+              </Row>
+              <Row start="lg">
+                <Col lg={8} xs={12}>
+                  <h2><FormattedMessage {...localMessages.directions} /></h2>
+                  <p>
+                    <FormattedMessage {...localMessages.directionsDetails} />
+                  </p>
+                  <AppButton onClick={this.onUploadCSV} label={formatMessage(messages.upload)} primary />
+                </Col>
+              </Row>
+              <Row end="lg">
+                <Col lg={8}>
+                  <br />
+                  <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
+                  &nbsp; &nbsp;
+                  <AppButton type="submit" label={formatMessage(messages.next)} primary />
+                </Col>
+              </Row>
+            </form>
+          </Col>
+        </Row>
       </Grid>
     );
   }

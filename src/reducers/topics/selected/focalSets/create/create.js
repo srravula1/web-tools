@@ -11,6 +11,7 @@ import mediaTypeCoverage from './mediaTypeCoverage';
 import mediaTypeStoryCounts from './mediaTypeStoryCounts';
 import workflow from './workflow';
 import mediaTypes from './mediaTypes';
+import matchingStoriesConfigWorkflow from './matchingStoriesConfigWorkflow';
 
 const createFocusReducer = combineReducers({
   matchingStories,
@@ -25,6 +26,7 @@ const createFocusReducer = combineReducers({
   mediaTypeStoryCounts,
   workflow,
   mediaTypes,
+  matchingStoriesConfigWorkflow,
 });
 
 export default createFocusReducer;

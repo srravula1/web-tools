@@ -347,7 +347,7 @@ def topic_tag_counts(user_mc_key, topics_id, tag_sets_id, sample_size=None):
      This supports just timespan_id and q from the request, because it has to use sentenceFieldCount,
      not a topicSentenceFieldCount method that takes filters (which doesn't exit)
     '''
-    # return [] # SUPER HACK!
+    return [] # SUPER HACK!
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     timespan_query = "timespans_id:{}".format(timespans_id)
     if (q is None) or (len(q) == 0):
@@ -435,7 +435,7 @@ def add_to_user_query(query_to_add):
 
 '''
 For cross-subtopic analysis within a subtopic set, we need to identify the timespan that has the same date
-range in each subtopic within the set.  This helper does that annoying work for you. 
+range in each subtopic within the set.  This helper does that annoying work for you.
 '''
 def matching_timespans_in_foci(topics_id, timespan_to_match, foci):
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)

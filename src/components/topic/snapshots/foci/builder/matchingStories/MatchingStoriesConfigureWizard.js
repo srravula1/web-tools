@@ -22,6 +22,7 @@ class MatchingStoriesConfigureWizard extends React.Component {
 
   componentWillMount = () => {
     const { startStep, goToStep } = this.props;
+    console.log('component mounting...');
     goToStep(startStep || 0);
   }
 
