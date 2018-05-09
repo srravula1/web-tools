@@ -1,0 +1,28 @@
+@import '../constants';
+
+.focus-create-validate-matchingStories {
+
+  // border-top: 1px solid $material-grey300;
+  // padding-top: 40px;
+  // margin-bottom: 40px;
+
+  th.story-title-col {
+    width: 30%;
+  }
+
+  th.match-col {
+    width: 40%;
+  }
+
+  // NOTE: Not sure how else to override...
+  button.app-button.match {
+    background-color: $topics-primary !important;
+    color: white !important;
+  }
+
+  button.app-button.not-match {
+    background-color: #fb6568 !important;
+    color: white !important;
+  }
+
+}

@@ -3,7 +3,7 @@ from flask import jsonify, request
 import flask_login
 import json
 import os
-import math
+import re
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -14,7 +14,7 @@ from sklearn.externals import joblib
 
 from server import app, base_dir
 from server.util.request import api_error_handler, json_error_response, form_fields_required, arguments_required
-from server.auth import user_mediacloud_key, user_mediacloud_client
+from server.auth import user_mediacloud_key, user_mediacloud_client, user_admin_mediacloud_client
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +210,6 @@ def generate_model(topics_id, training_set, subtopic_name):
     #
     # # TODO: return precision and recall scores here?
 
-# NOTE: will be called when 'Understanding Model' page loads
 @app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/prob-words', methods=['GET'])
 @flask_login.login_required
 @api_error_handler
@@ -219,8 +218,8 @@ def get_probable_words_list(topics_id, focalset_name):
     model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)
 
     # Get list of probabilities
-    probs_0 = map(lambda x: math.exp(x), model.feature_log_prob_[0])
-    probs_1 = map(lambda x: math.exp(x), model.feature_log_prob_[1])
+    probs_0 = model.feature_log_prob_[0].tolist()
+    probs_1 = model.feature_log_prob_[1].tolist()
 
     # Get model vocab
     vocab = vectorizer.vocabulary_ # (maps terms to feature indices)
@@ -242,41 +241,42 @@ def get_probable_words_list(topics_id, focalset_name):
     top_words_1 = map(lambda x: x[0], top_words_1)
     return jsonify({'list': [top_words_0, top_words_1]})
 
-# def classify_random_sample(topics_id):
-#     # TODO: figure out if there's a general admin key we can use here...
-#     #       Code below will only work if user is an Admin
-#     # user_mc = user_admin_mediacloud_client(user_mc_key='?')
-#     user_mc = user_mediacloud_client()
-#
-#     # Get ids for 30 random Stories
-#     # TODO: figure out randomization later, for now just grab the first 30 stories from api
-#     sample_stories = user_mc.storyList(solr_query='{~ topic:}'.format(topics_id), rows=30, sentences=True)
-#
-#     # Process story sentences and ids
-#     test_stories_text = []
-#     test_stories_ids = []
-#     for i, story in enumerate(sample_stories):
-#         test_stories_ids.append(story['stories_id'])
-#         test_stories_text.append('')
-#     	for sentence in story['story_sentences']:
-#     		sent = re.sub(r'[^\w\s-]', '', sentence['sentence'])
-#     		sent = re.sub(r'[\s-]', ' ', sent)
-#             test_stories_text[i] += (sent.lower() + ' ')
-#
-#     # Get predictions on samples
-#     focalset_name = request.form['focalSetName']
-#     model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)
-#     X_test = vectorizer.transform(test_stories_text)
-#     predicted_labels = model.predict(X_test)
-#     predicted_probs = model.predict_proba(X_test)
-#
-#     return (test_stories_ids, predicted_labels, predicted_probs)
+@app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/sample', methods=['GET'])
+@flask_login.login_required
+@api_error_handler
+def classify_random_sample(topics_id, focalset_name):
+    # TODO: figure out if there's a general admin key we can use here...
+    #       Code below will only work if user is an Admin
+    user_mc = user_admin_mediacloud_client()
 
+    # Get ids for 30 random Stories
+    # TODO: figure out randomization later, for now just grab the first 30 stories from api
+    sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', rows=30, sentences=True)
 
+    # Process story sentences and ids
+    test_stories_text = []
+    test_stories = []
+    for i, story in enumerate(sample_stories):
+        test_stories.append(story)
+        test_stories_text.append('')
+        for sentence in story['story_sentences']:
+            # TODO: TRIPLE-CHECK THAT YOU ARE DOING THIS CORRECTLY
+            sent = re.sub(r'[^\w\s-]', '', sentence['sentence'])
+            sent = re.sub(r'[\s-]', ' ', sent)
+            test_stories_text[i] += (sent.lower() + ' ')
 
+    # Get predictions on samples
+    model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)
+    X_test = vectorizer.transform(test_stories_text)
+    predicted_labels = model.predict(X_test).tolist()
+    predicted_probs = model.predict_proba(X_test).tolist()
 
+    # TODO: might not need to do this but want to make sure these are in order...
+    # test_stories = []
+    # for id in test_stories_ids:
+    #     test_stories.append(user_mc.story(id))
 
-
+    return jsonify({'sampleStories': test_stories, 'labels': predicted_labels, 'probs': predicted_probs})
 
 
 # end

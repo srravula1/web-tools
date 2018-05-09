@@ -52,7 +52,7 @@ class UnderstandMatchingStoriesContainer extends React.Component {
                     <table>
                       <tbody>
                         <tr>
-                          {probableWords[0].map(word => <td key={word}>{word}</td>)}
+                          {probableWords[0].map((word, idx) => <td key={idx}>{word}</td>)}
                         </tr>
                       </tbody>
                     </table>

@@ -396,7 +396,6 @@ export function matchingStoriesProbableWords(topicId, focalSetName) {
   return createApiPromise(`/api/topics/${topicId}/focal-sets/${focalSetName}/matching-stories/prob-words`);
 }
 
-// TODO
-// export function topicPreviewMatchingStoriesTestSample() {
-//   return createApiPromise(`api/topics/${topicId}/focal-sets/matching-stories/preview/test-sample`)
-// }
+export function matchingStoriesSample(topicId, focalSetName) {
+  return createApiPromise(`/api/topics/${topicId}/focal-sets/${focalSetName}/matching-stories/sample`);
+}
