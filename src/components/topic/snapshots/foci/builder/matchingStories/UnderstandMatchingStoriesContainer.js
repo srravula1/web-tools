@@ -23,8 +23,6 @@ const localMessages = {
   directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 25 stories manually to train our machine learning model. You can use this template to format the data' },
 };
 
-const FOCALSET_NAME = 'economic-impact';
-
 class UnderstandMatchingStoriesContainer extends React.Component {
 
   componentWillMount = () => {
@@ -102,6 +100,7 @@ UnderstandMatchingStoriesContainer.propTypes = {
   currentFocalTechnique: PropTypes.string,
   probableWords: PropTypes.array.isRequired,
   fetchStatus: PropTypes.string.isRequired,
+  modelName: PropTypes.string.isRequired,
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
@@ -119,9 +118,10 @@ const mapStateToProps = state => ({
   currentFocalTechnique: formSelector(state, 'focalTechnique'),
   fetchStatus: state.topics.selected.focalSets.create.matchingStoriesProbableWords.fetchStatus,
   probableWords: state.topics.selected.focalSets.create.matchingStoriesProbableWords.list,
+  modelName: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.results,
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   handlePreviousStep: () => {
     dispatch(goToMatchingStoriesConfigStep(0));
   },
@@ -131,10 +131,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchProbableWords: (topicId, focalSetName) => {
     dispatch(fetchMatchingStoriesProbableWords(topicId, focalSetName));
   },
-  asyncFetch: () => {
-    dispatch(fetchMatchingStoriesProbableWords(ownProps.topicId, FOCALSET_NAME));
-  },
 });
+
+function mergeProps(stateProps, dispatchProps, ownProps) {
+  return Object.assign({}, stateProps, dispatchProps, ownProps, {
+    asyncFetch: () => {
+      dispatchProps.fetchProbableWords(ownProps.topicId, stateProps.modelName);
+    },
+  });
+}
 
 function validate(values) {
   const errors = {};
@@ -156,7 +161,7 @@ export default
   injectIntl(
     composeIntlForm(
       reduxForm(reduxFormConfig)(
-        connect(mapStateToProps, mapDispatchToProps)(
+        connect(mapStateToProps, mapDispatchToProps, mergeProps)(
           composeAsyncContainer(
             UnderstandMatchingStoriesContainer
           )

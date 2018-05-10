@@ -18,8 +18,6 @@ import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicAc
 
 const formSelector = formValueSelector('snapshotFocus');
 
-const FOCALSET_NAME = 'economic-impact';
-
 const localMessages = {
   title: { id: 'focus.create.validate.title', defaultMessage: 'Validating the Model' },
   about: { id: 'focus.create.edit.about',
@@ -31,10 +29,6 @@ const localMessages = {
 
 
 class ValidateMatchingStoriesContainer extends React.Component {
-
-  componentWillMount = () => {
-    console.log('component mounting');
-  }
 
   handleReadItClick = (story) => {
     window.open(story.url, '_blank');
@@ -184,19 +178,28 @@ const mapStateToProps = state => ({
   sampleStories: state.topics.selected.focalSets.create.matchingStoriesSample.sampleStories,
   sampleProbs: state.topics.selected.focalSets.create.matchingStoriesSample.probs,
   sampleLabels: state.topics.selected.focalSets.create.matchingStoriesSample.labels,
+  modelName: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.results,
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   handlePreviousStep: () => {
     dispatch(goToMatchingStoriesConfigStep(1));
   },
   handleNextStep: () => {
     dispatch(goToMatchingStoriesConfigStep(3));
   },
-  asyncFetch: () => {
-    dispatch(fetchMatchingStoriesSample(ownProps.topicId, FOCALSET_NAME));
+  fetchStoriesSample: (topicId, modelName) => {
+    dispatch(fetchMatchingStoriesSample(topicId, modelName));
   },
 });
+
+function mergeProps(stateProps, dispatchProps, ownProps) {
+  return Object.assign({}, stateProps, dispatchProps, ownProps, {
+    asyncFetch: () => {
+      dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
+    },
+  });
+}
 
 function validate(values) {
   const errors = {};
@@ -206,7 +209,6 @@ function validate(values) {
   return errors;
 }
 
-// TODO: figure out what this is
 const reduxFormConfig = {
   form: 'snapshotFocus', // make sure this matches the sub-components and other wizard steps
   destroyOnUnmount: false, // <------ preserve form data
@@ -218,7 +220,7 @@ export default
   injectIntl(
     composeIntlForm(
       reduxForm(reduxFormConfig)(
-        connect(mapStateToProps, mapDispatchToProps)(
+        connect(mapStateToProps, mapDispatchToProps, mergeProps)(
           composeAsyncContainer(
             ValidateMatchingStoriesContainer
           )

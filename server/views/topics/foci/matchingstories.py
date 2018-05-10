@@ -4,6 +4,10 @@ import flask_login
 import json
 import os
 import re
+import time
+import codecs
+from werkzeug.utils import secure_filename
+import csv as pycsv
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -12,7 +16,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 # from sklearn.metrics import precision_score, recall_score
 
-from server import app, base_dir
+from server import app, base_dir, TOOL_API_KEY
+from server.views.sources.collection import allowed_file
 from server.util.request import api_error_handler, json_error_response, form_fields_required, arguments_required
 from server.auth import user_mediacloud_key, user_mediacloud_client, user_admin_mediacloud_client
 
@@ -20,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 MODEL_FILENAME_TEMPLATE = 'topic-{}-{}.pkl' # topic id, model_name
 VECTORIZER_FILENAME_TEMPLATE = 'topic-{}-{}-vec.pkl' # topic id, model_name
+TRAINING_SET_HEADERS = ['stories_id', 'label']
+
+MIN_DF_DEFAULT = 0.1
+MAX_DF_DEFAULT = 0.9
 
 
 def download_template():
@@ -27,21 +36,45 @@ def download_template():
     pass
 
 def _parse_stories_from_csv_upload(filepath):
-    pass
-    # with open(filepath, 'rb') as csvfile:
-    #     id_reader = csv.DictReader(csvfile)
-    #     story_ids = []
-    #     labels = []
-    #     for row in id_reader:
-    #         story_ids.append(row['positive'])  # TODO: think of a good name...
-    #         story_ids.append(row['negative'])
-    #         labels.append(1.0)
-    #         labels.append(0.0)
-    # return (story_ids, labels)
+    # only allow 'stories_id' and 'label' columns
+    acceptable_column_names = TRAINING_SET_HEADERS
 
-def _save_model_and_vectorizer(topics_id, subtopic_name):
+    # TODO: look up what rU means
+    with open(filepath, 'rU') as f:
+        reader = pycsv.DictReader(f)
+        reader.fieldnames = acceptable_column_names
+        stories_ids = []
+        labels = []
+        reader.next()   # skip column headers
+        for row_num, row in enumerate(reader):
+            stories_id = row['stories_id']
+            label = row['label']
+
+            # validate row entries
+            try:
+                stories_id = int(stories_id)
+            except Exception as e:
+                # TODO: should return row number and failed id
+                logger.error("Couldn't process a CSV row: " + str(e))
+                raise Exception("couldn't process a CSV row: " + str(e))
+            try:
+                label = int(label)
+            except Exception as e:
+                # TODO: should return row number and failed id
+                logger.error("Couldn't process a CSV row: " + str(e))
+                raise Exception("couldn't process a CSV row: " + str(e))
+            if label != 1 and label != 0:
+                # TODO: should return row number and failed id
+                logger.error("couldn't process a CSV row: invalid label on row {}".format(row_num))
+                raise Exception("couldn't process a CSV row: invalid label on row {}".format(row_num))
+
+            stories_ids.append(stories_id)
+            labels.append(label)
+
+    return stories_ids, labels
+
+def _save_model_and_vectorizer(model, vectorizer, topics_id, model_name):
     # See: http://scikit-learn.org/stable/modules/model_persistence.html
-    model_name = subtopic_name.strip().replace(' ', '-')
     MODEL_FILENAME = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
     VECTORIZER_FILENAME = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
     joblib.dump(model, MODEL_FILENAME)
@@ -55,15 +88,18 @@ def _load_model_and_vectorizer(topics_id, subtopic_name):
     vectorizer = joblib.load(os.path.join(base_dir, 'server', 'static', 'data', VECTORIZER_FILENAME))
     return (model, vectorizer)
 
-def download_stories(story_ids, file_name):
+def _download_stories_text(stories_ids, filepath):
     """
     Story IDs to Text file
     - For now create new text files and write to them...
     - perhaps there's a better way to do this, not sure if memory will ever be an issue
     """
-    with codecs.open(file_name, 'w', 'utf-8') as fp:
-        for story_id in story_ids:
-            story_details = mc.story(story_id, sentences=True)
+    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
+    with codecs.open(filepath, 'w', 'utf-8') as fp:
+        for story_id in stories_ids:
+            print story_id
+            print type(story_id)
+            story_details = user_mc.story(story_id, sentences=True)
             sentences = story_details['story_sentences']
             for sd in sentences:
                 #fp.write(re.sub(r'\s', ' ', sd['sentence']))
@@ -74,110 +110,88 @@ def download_stories(story_ids, file_name):
             fp.write(u'\n')
 
 
-# @app.route('/api/topics/<topics_id>/focal-sets/matching-stores/upload-reference-set', methods=['POST'])
-# @flask_login.login_required
-# @api_error_handler
-# NOTE: this will be called when user clicks 'upload' button
-#           will pass results into request object for generate_model when 'Next' button is clicked
+@app.route('/api/topics/focal-sets/matching-stories/upload-training-set', methods=['POST'])
+@flask_login.login_required
+@api_error_handler
 def upload_reference_set():
-    pass
-    # time_start = time.time()
-    # # grab and verify the file
-    # if 'file' not in request.files:
-    #     return json_error_response('No file part')
-    # uploaded_file = request.files['file']
-    # if uploaded_file.filename == '':
-    #     return json_error_response('No selected file')
-    # if not(uploaded_file and allowed_file(uploaded_file.filename)):
-    #     return json_error_response('Invalid file')
-    # filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(uploaded_file.filename))
-    # # have to save b/c otherwise we can't locate the file path (security restriction)... can delete afterwards
-    # uploaded_file.save(filepath)
-    # time_file_saved = time.time()
-    # # parse all the source data out of the file
-    # sources_to_update, sources_to_create = _parse_sources_from_csv_upload(filepath)
-    # all_results = []
-    # all_errors = []
-    # if len(sources_to_create) > 300:
-    #     return jsonify({'status': 'Error', 'message': 'Too many sources to upload. The limit is 300.'})
-    # else:
-    #     audit = []
-    #     if len(sources_to_create) > 0:
-    #         audit_results, successful, errors = _create_or_update_sources(sources_to_create, True)
-    #         all_results += successful
-    #         audit += audit_results
-    #         all_errors += errors
-    #     if len(sources_to_update) > 0:
-    #         audit_results, successful, errors = _create_or_update_sources(sources_to_update, False)
-    #         all_results += successful
-    #         audit += audit_results
-    #         all_errors += errors
-    #     try:
-    #         mail_enabled = config.get('SMTP_ENABLED')
-    #         if mail_enabled is '1':
-    #             _email_batch_source_update_results(audit)
-    #     except ConfigException:
-    #         logger.debug("Skipping collection file upload confirmation email")
-    #     for media in all_results:
-    #         if 'media_id' in media:
-    #             media['media_id'] = int(
-    #                 media['media_id'])  # make sure they are ints so no-dupes logic works on front end
-    #     time_end = time.time()
-    #     logger.debug("upload_file: {}".format(time_end - time_start))
-    #     logger.debug("  save file: {}".format(time_file_saved - time_start))
-    #     logger.debug("  processing: {}".format(time_end - time_file_saved))
-    #     return jsonify({'results': all_results})
+    time_start = time.time()
 
-# NOTE: will be called when 'Next' button pressed on EditMatchingStoriesContainer page
-# @app.route('/api/topics/<topics_id>/focal-sets/matching-stories/...TODO...', methods=['GET'])
-# @flask_login.login_required
-# @arguments_required('trainingSet')
-# @api_error_handler
+    # verify the file
+    if 'file' not in request.files:
+        return json_error_response('No file part')
+    uploaded_file = request.files['file']
+    if uploaded_file.filename == '':
+        return json_error_response('No selected file')
+    if not(uploaded_file and allowed_file(uploaded_file.filename)):
+        return json_error_response('Invalid file')
 
-def generate_model(topics_id, training_set, subtopic_name):
-    pass
+    # have to save b/c otherwise we can't locate the file path (security restriction)... can delete afterwards
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(uploaded_file.filename))
+    uploaded_file.save(filepath)
+    time_file_saved = time.time()
+
+    # parse story data out of the file
+    # QUESTION: Should I add a try-catch here and handle error message nicely?
+    stories_ids, labels = _parse_stories_from_csv_upload(filepath)
+
+    if len(stories_ids) > 300:
+        # TODO: discuss/determine appropriate training set limit
+        return jsonify({'status': 'Error', 'message': 'Too many stories in training set. The limit is 300.'})
+    else:
+        time_end = time.time()
+        logger.debug("upload_file: {}".format(time_end - time_start))
+        logger.debug("  save file: {}".format(time_file_saved - time_start))
+        logger.debug(" processing: {}".format(time_end - time_file_saved))
+
+        return jsonify({'storiesIds': stories_ids, 'labels': labels})
+
+
+@app.route('/api/topics/<topics_id>/focal-sets/matching-stories/generate-model', methods=['POST'])
+@flask_login.login_required
+@api_error_handler
+def generate_model(topics_id):
     # @param trainingSet: tuple of story_ids list and labels list
-    # story_ids = trainingSet[0]
-    # labels = trainingSet[1]
-    #
-    # # download text of stories from story_ids list
-    #
-    # print 'downloading raw text from story ids...'
-    # STORY_TEXT_FILEPATH = 'path/to/storytext'
-    # download_stories(story_ids, STORY_TEXT_FILEPATH)
-    #
-    #
-    # # Load and vectorize data
-    #
-    # with open(STORY_TEXT_FILEPATH) as fp:
-    #     stories = fp.readlines()
-    # print len(stories)
-    # min_doc_freq = os.getenv('MIN_DF', MIN_DF_DEFAULT)
-    # max_doc_freq = os.getenv('MAX_DF', MAX_DF_DEFAULT)
-    # # TODO: set params might be cleaner?
-    # vectorizer = TfidfVectorizer(sublinear_tf=True, stop_words='english', min_df=min_doc_freq, max_df=max_doc_freq)
-    # vectorizer.fit(stories)
-    # X_train = vectorizer.transform(stories)
-    # y_train = np.asarray(labels)
-    # print 'number of examples:', X_train.shape
-    # print 'number of labels:', y_train.shape
-    # print
-    #
-    #
-    # # Train model
-    #
-    # print 'Training model...'
-    # clf = MultinomialNB()
-    # model = clf.fit(X_train, y_train)
-    # print '...done!'
-    # print
-    # print 'Training Score Accuracy:'
-    # # TODO: figure out structure of output here
-    # print model.score(X_train, y_train)
-    #
-    #
-    # # Cross-Validation
-    #
+    # print request.form
+
+    subtopic_name = request.form.get('topicName')
+    model_name = subtopic_name.strip().replace(' ', '-')
+    stories_ids = request.form.get('ids')
+    stories_ids = '[' + stories_ids + ']'  # blah supah hack
+    stories_ids = json.loads(stories_ids)
+    labels = request.form.get('labels')
+    labels = '[' + labels + ']'  # blah supah hack
+    labels = json.loads(labels)
+    filename = 'training-story-text.txt'
+
+    # download text of stories from story_ids list
+    """
+    print 'downloading raw text from story ids...'
+    filepath = os.path.join(base_dir, 'server', 'static', 'data', filename)
+    _download_stories_text(stories_ids, filepath)
+
+    # Load and vectorize data
+    with open(filepath) as f:
+        stories = f.readlines()
+    print len(stories)
+    vectorizer = TfidfVectorizer(sublinear_tf=True, stop_words='english', min_df=MIN_DF_DEFAULT, max_df=MAX_DF_DEFAULT)
+    vectorizer.fit(stories)
+    X_train = vectorizer.transform(stories)
+    y_train = np.asarray(labels)
+    print 'number of examples:', X_train.shape
+    print 'number of labels:', y_train.shape
+    print
+
+    # Train model
+    print 'Training model...'
+    clf = MultinomialNB()
+    model = clf.fit(X_train, y_train)
+    print '...done!'
+    print
+    print 'Training Score Accuracy:'
+    # TODO: figure out structure of output here
+    print model.score(X_train, y_train)
+
+    # Cross-Validation
     # print "Cross-Validation..."
     # skf = StratifiedKFold(n_splits=3)
     # test_prec_scores = []
@@ -201,14 +215,17 @@ def generate_model(topics_id, training_set, subtopic_name):
     # print 'std:', np.std(test_prec_scores)
     # print 'average test recall:', np.mean(test_rec_scores)
     # print 'std:', np.std(test_rec_scores)
-    #
-    #
-    # # Pickle model and vectorizer
-    #
-    # _save_model_and_vectorizer(topics_id, subtopic_name)
-    #
-    #
-    # # TODO: return precision and recall scores here?
+
+    # Pickle model and vectorizer
+    # TODO: pickle precision and recall scores
+    _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name)
+
+    # clean up
+    os.remove(filepath)
+    """
+
+    return jsonify({'results': model_name})
+
 
 @app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/prob-words', methods=['GET'])
 @flask_login.login_required
@@ -245,14 +262,12 @@ def get_probable_words_list(topics_id, focalset_name):
 @flask_login.login_required
 @api_error_handler
 def classify_random_sample(topics_id, focalset_name):
-    # TODO: figure out if there's a general admin key we can use here...
-    #       Code below will only work if user is an Admin
-    user_mc = user_admin_mediacloud_client()
+    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
 
     # Get ids for 30 random Stories
     # TODO: figure out randomization later, for now just grab the first 30 stories from api
     sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', rows=30, sentences=True)
-
+    print 'focal set name:', focalset_name
     # Process story sentences and ids
     test_stories_text = []
     test_stories = []
@@ -270,11 +285,6 @@ def classify_random_sample(topics_id, focalset_name):
     X_test = vectorizer.transform(test_stories_text)
     predicted_labels = model.predict(X_test).tolist()
     predicted_probs = model.predict_proba(X_test).tolist()
-
-    # TODO: might not need to do this but want to make sure these are in order...
-    # test_stories = []
-    # for id in test_stories_ids:
-    #     test_stories.append(user_mc.story(id))
 
     return jsonify({'sampleStories': test_stories, 'labels': predicted_labels, 'probs': predicted_probs})
 
