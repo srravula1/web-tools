@@ -80,6 +80,11 @@ class ValidateMatchingStoriesContainer extends React.Component {
                         {sampleStories.map((story, idx) => {
                           const match = (sampleLabels[idx] === 1.0);
                           const prob = Math.round(sampleProbs[idx][match ? 1 : 0] * 100 * 100) / 100;
+                          let firstSentence = '';
+                          // NOTE: the very first sentence tends to repeat the title word-for-word...
+                          if (story.story_sentences[1]) {
+                            firstSentence = story.story_sentences[1].sentence;
+                          }
 
                           let modelGuess;
                           if (match) {
@@ -107,9 +112,18 @@ class ValidateMatchingStoriesContainer extends React.Component {
 
                           return (<tr key={story.stories_id}>
                             <td>
-                              <LinkWithFilters to={`/topics/${topicId}/stories/${story.stories_id}`}>
-                                { story.title }
-                              </LinkWithFilters>
+                              <Row>
+                                <Col lg={12}>
+                                  <LinkWithFilters to={`/topics/${topicId}/stories/${story.stories_id}`}>
+                                    { story.title }
+                                  </LinkWithFilters>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col lg={12}>
+                                  { firstSentence }
+                                </Col>
+                              </Row>
                             </td>
                             <td><ReadItNowButton onClick={this.handleReadItClick.bind(this, story)} /></td>
                             <td>
@@ -178,7 +192,7 @@ const mapStateToProps = state => ({
   sampleStories: state.topics.selected.focalSets.create.matchingStoriesSample.sampleStories,
   sampleProbs: state.topics.selected.focalSets.create.matchingStoriesSample.probs,
   sampleLabels: state.topics.selected.focalSets.create.matchingStoriesSample.labels,
-  modelName: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.results,
+  modelName: state.topics.selected.focalSets.create.matchingStoriesModelName.name,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -196,7 +210,10 @@ const mapDispatchToProps = dispatch => ({
 function mergeProps(stateProps, dispatchProps, ownProps) {
   return Object.assign({}, stateProps, dispatchProps, ownProps, {
     asyncFetch: () => {
-      dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
+      console.log(stateProps.sampleStories);
+      if (stateProps.sampleStories && stateProps.sampleStories.length === 0) {
+        dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
+      }
     },
   });
 }

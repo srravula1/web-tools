@@ -30,7 +30,7 @@ MatchingStoriesSummary.propTypes = {
   intl: PropTypes.object.isRequired,
 };
 const mapStateToProps = state => ({
-  modelName: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.results,
+  modelName: state.topics.selected.focalSets.create.matchingStoriesModelName.name,
 });
 
 export default

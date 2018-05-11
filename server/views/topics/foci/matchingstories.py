@@ -25,11 +25,12 @@ logger = logging.getLogger(__name__)
 
 MODEL_FILENAME_TEMPLATE = 'topic-{}-{}.pkl' # topic id, model_name
 VECTORIZER_FILENAME_TEMPLATE = 'topic-{}-{}-vec.pkl' # topic id, model_name
+SAMPLE_STORIES_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories.txt' # topic id, model name
+SAMPLE_STORIES_IDS_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories-ids.txt' # topic id, model name
 TRAINING_SET_HEADERS = ['stories_id', 'label']
 
 MIN_DF_DEFAULT = 0.1
 MAX_DF_DEFAULT = 0.9
-
 
 def download_template():
     # TODO
@@ -77,8 +78,8 @@ def _save_model_and_vectorizer(model, vectorizer, topics_id, model_name):
     # See: http://scikit-learn.org/stable/modules/model_persistence.html
     MODEL_FILENAME = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
     VECTORIZER_FILENAME = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
-    joblib.dump(model, MODEL_FILENAME)
-    joblib.dump(vectorizer, VECTORIZER_FILENAME)
+    joblib.dump(model, os.path.join(base_dir, 'server', 'static', 'data', MODEL_FILENAME))
+    joblib.dump(vectorizer, os.path.join(base_dir, 'server', 'static', 'data', VECTORIZER_FILENAME))
 
 def _load_model_and_vectorizer(topics_id, subtopic_name):
     model_name = subtopic_name.strip().replace(' ', '-')
@@ -102,8 +103,6 @@ def _download_stories_text(stories_ids, filepath):
             story_details = user_mc.story(story_id, sentences=True)
             sentences = story_details['story_sentences']
             for sd in sentences:
-                #fp.write(re.sub(r'\s', ' ', sd['sentence']))
-                #fp.write(u' ')
                 sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
                 sent = re.sub(r'[\s-]', ' ', sent)
                 fp.write(sent.lower() + ' ')
@@ -164,10 +163,10 @@ def generate_model(topics_id):
     filename = 'training-story-text.txt'
 
     # download text of stories from story_ids list
-    """
     print 'downloading raw text from story ids...'
     filepath = os.path.join(base_dir, 'server', 'static', 'data', filename)
-    _download_stories_text(stories_ids, filepath)
+    if not os.path.isfile(filepath): # add this check for dev so we aren't downloading these stories a zillion times
+        _download_stories_text(stories_ids, filepath)
 
     # Load and vectorize data
     with open(filepath) as f:
@@ -221,8 +220,8 @@ def generate_model(topics_id):
     _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name)
 
     # clean up
-    os.remove(filepath)
-    """
+    # TODO: remove comment once ready to deploy
+    # os.remove(filepath)
 
     return jsonify({'results': model_name})
 
@@ -262,12 +261,13 @@ def get_probable_words_list(topics_id, focalset_name):
 @flask_login.login_required
 @api_error_handler
 def classify_random_sample(topics_id, focalset_name):
-    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
+    print 'focal set name:', focalset_name
 
     # Get ids for 30 random Stories
     # TODO: figure out randomization later, for now just grab the first 30 stories from api
+    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
     sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', rows=30, sentences=True)
-    print 'focal set name:', focalset_name
+
     # Process story sentences and ids
     test_stories_text = []
     test_stories = []
@@ -275,10 +275,11 @@ def classify_random_sample(topics_id, focalset_name):
         test_stories.append(story)
         test_stories_text.append('')
         for sentence in story['story_sentences']:
-            # TODO: TRIPLE-CHECK THAT YOU ARE DOING THIS CORRECTLY
             sent = re.sub(r'[^\w\s-]', '', sentence['sentence'])
             sent = re.sub(r'[\s-]', ' ', sent)
             test_stories_text[i] += (sent.lower() + ' ')
+
+    print test_stories_text[0]
 
     # Get predictions on samples
     model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)

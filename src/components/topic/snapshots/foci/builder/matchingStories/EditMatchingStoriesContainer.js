@@ -11,8 +11,7 @@ import messages from '../../../../../../resources/messages';
 // import CollectionUploadConfirmer from '../../../../../source/collection/form/CollectionUploadConfirmer';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { updateFeedback } from '../../../../../../actions/appActions';
-import { goToCreateFocusStep, goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
-import { uploadTrainingSet, generateModel } from '../../../../../../actions/topics/matchingStoriesActions';
+import { goToCreateFocusStep, goToMatchingStoriesConfigStep, modelName, uploadTrainingSet } from '../../../../../../actions/topicActions';
 
 const formSelector = formValueSelector('snapshotFocus');
 
@@ -63,7 +62,7 @@ class EditMatchingStoriesContainer extends React.Component {
       <Grid>
         <Row center="lg">
           <Col lg={8}>
-            <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this, this.props))}>
+            <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
               <Row start="lg">
                 <Col lg={12}>
                   <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
@@ -143,10 +142,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   handlePreviousStep: () => {
     dispatch(goToCreateFocusStep(0));
   },
-  handleNextStep: (props, e) => {
-    // TODO: call dispatch to generate and save model
-    dispatch(generateModel(ownProps.topicId, { topicName: e.topicName, ids: props.storiesIds, labels: props.labels }))
-      .then(() => dispatch(goToMatchingStoriesConfigStep(1)));
+  handleNextStep: (e) => {
+    console.log(e.topicName);
+    // dispatch(generateModel(ownProps.topicId, { topicName: e.topicName, ids: props.storiesIds, labels: props.labels }))
+    //   .then(() => dispatch(goToMatchingStoriesConfigStep(1)));
+    // dispatch(modelName(e.topicName))
+    //   .then(() => dispatch(goToMatchingStoriesConfigStep(1)));
+    dispatch(modelName(e.topicName));
+    dispatch(goToMatchingStoriesConfigStep(1));
   },
   uploadCSVFile: (csvFile) => {
     dispatch(uploadTrainingSet({ file: csvFile }))

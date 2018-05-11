@@ -9,7 +9,7 @@ import composeIntlForm from '../../../../../common/IntlForm';
 import composeAsyncContainer from '../../../../../common/AsyncContainer';
 // import messages from '../../../../../../resources/messages';
 import { notEmptyString } from '../../../../../../lib/formValidators';
-import { fetchMatchingStoriesProbableWords } from '../../../../../../actions/topics/matchingStoriesActions';
+import { generateModel, fetchMatchingStoriesProbableWords } from '../../../../../../actions/topics/matchingStoriesActions';
 import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
 
 const formSelector = formValueSelector('snapshotFocus');
@@ -104,7 +104,7 @@ UnderstandMatchingStoriesContainer.propTypes = {
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
-  fetchProbableWords: PropTypes.func.isRequired,
+  fetchModel: PropTypes.func.isRequired,
   asyncFetch: PropTypes.func.isRequired,
   // from compositional helper
   intl: PropTypes.object.isRequired,
@@ -118,7 +118,9 @@ const mapStateToProps = state => ({
   currentFocalTechnique: formSelector(state, 'focalTechnique'),
   fetchStatus: state.topics.selected.focalSets.create.matchingStoriesProbableWords.fetchStatus,
   probableWords: state.topics.selected.focalSets.create.matchingStoriesProbableWords.list,
-  modelName: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.results,
+  modelName: state.topics.selected.focalSets.create.matchingStoriesModelName.name,
+  storiesIds: state.topics.selected.focalSets.create.matchingStoriesUploadCSV.storiesIds,
+  labels: state.topics.selected.focalSets.create.matchingStoriesUploadCSV.labels,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -128,16 +130,15 @@ const mapDispatchToProps = dispatch => ({
   handleNextStep: () => {
     dispatch(goToMatchingStoriesConfigStep(2));
   },
-  fetchProbableWords: (topicId, focalSetName) => {
-    dispatch(fetchMatchingStoriesProbableWords(topicId, focalSetName));
+  fetchModel: (topicId, topicName, ids, labels) => {
+    dispatch(generateModel(topicId, { topicName, ids, labels }))
+      .then(() => dispatch(fetchMatchingStoriesProbableWords(topicId, topicName)));
   },
 });
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
   return Object.assign({}, stateProps, dispatchProps, ownProps, {
-    asyncFetch: () => {
-      dispatchProps.fetchProbableWords(ownProps.topicId, stateProps.modelName);
-    },
+    asyncFetch: () => dispatchProps.fetchModel(ownProps.topicId, stateProps.modelName, stateProps.storiesIds, stateProps.labels),
   });
 }
 

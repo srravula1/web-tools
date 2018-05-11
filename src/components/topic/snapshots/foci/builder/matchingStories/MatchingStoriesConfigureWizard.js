@@ -31,10 +31,10 @@ class MatchingStoriesConfigureWizard extends React.Component {
     return currentStep !== nextProps.currentStep;
   }
 
-  componentWillUnmount = () => {
-    const { handleUnmount } = this.props;
-    handleUnmount();
-  }
+  // componentWillUnmount = () => {
+  //   const { handleUnmount } = this.props;
+  //   handleUnmount();
+  // }
 
   render() {
     const { topicId, initialValues, currentStep } = this.props;
@@ -104,10 +104,10 @@ const mapDispatchToProps = dispatch => ({
     console.log('matching stories go to step');
     dispatch(goToMatchingStoriesConfigStep(step));
   },
-  handleUnmount: () => {
-    console.log('matching stories handle unmount');
-    dispatch(goToMatchingStoriesConfigStep(0)); // reset for next time
-  },
+  // handleUnmount: () => {
+  //   console.log('matching stories handle unmount');
+  //   dispatch(goToMatchingStoriesConfigStep(0)); // reset for next time
+  // },
 });
 
 export default
