@@ -14,7 +14,7 @@ import LinkWithFilters from '../../../../LinkWithFilters';
 // import TopicStoryTable from '../../../../TopicStoryTable';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { fetchMatchingStoriesSample } from '../../../../../../actions/topics/matchingStoriesActions';
-import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
+import { goToCreateFocusStep, goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
 
 const formSelector = formValueSelector('snapshotFocus');
 
@@ -186,7 +186,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(goToMatchingStoriesConfigStep(1));
   },
   handleNextStep: () => {
-    dispatch(goToMatchingStoriesConfigStep(3));
+    dispatch(goToCreateFocusStep(2));
   },
   fetchStoriesSample: (topicId, modelName) => {
     dispatch(fetchMatchingStoriesSample(topicId, modelName));

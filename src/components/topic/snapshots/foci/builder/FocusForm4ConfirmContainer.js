@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { replace } from 'react-router-redux';
 import { FormattedMessage, FormattedHTMLMessage, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, formValueSelector } from 'redux-form';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import withIntlForm from '../../../../common/hocs/IntlForm';
 import KeywordSearchSummary from './keywordSearch/KeywordSearchSummary';
@@ -10,7 +11,8 @@ import RetweetPartisanshipSummary from './retweetPartisanship/RetweetPartisanshi
 import TopCountriesSummary from './topCountries/TopCountriesSummary';
 import NytThemeSummary from './nyttheme/NytThemeSummary';
 import MediaTypeSummary from './mediaType/MediaTypeSummary';
-import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE } from '../../../../../lib/focalTechniques';
+import MatchingStoriesSummary from './matchingStories/MatchingStoriesSummary';
+import { FOCAL_TECHNIQUE_BOOLEAN_QUERY, FOCAL_TECHNIQUE_RETWEET_PARTISANSHIP, FOCAL_TECHNIQUE_TOP_COUNTRIES, FOCAL_TECHNIQUE_NYT_THEME, FOCAL_TECHNIQUE_MEDIA_TYPE, FOCAL_TECHNIQUE_REFERENCE_SET } from '../../../../../lib/focalTechniques';
 import AppButton from '../../../../common/AppButton';
 import messages from '../../../../../resources/messages';
 import { goToCreateFocusStep } from '../../../../../actions/topicActions';
@@ -24,6 +26,8 @@ const localMessages = {
   focusSaved: { id: 'focus.create.saved', defaultMessage: 'We saved your new Subtopic.' },
   focusNotSaved: { id: 'focus.create.notSaved', defaultMessage: 'That didn\'t work! Make sure you have a unique Subtopic name?' },
 };
+
+const formSelector = formValueSelector('snapshotFocus');
 
 const FocusForm4ConfirmContainer = (props) => {
   const { topicId, formValues, initialValues, handlePreviousStep, handleSubmit, finishStep, submitting } = props;
@@ -53,6 +57,11 @@ const FocusForm4ConfirmContainer = (props) => {
     case FOCAL_TECHNIQUE_MEDIA_TYPE:
       content = (
         <MediaTypeSummary topicId={topicId} formValues={formValues} initialValues={initialValues} />
+      );
+      break;
+    case FOCAL_TECHNIQUE_REFERENCE_SET:
+      content = (
+        <MatchingStoriesSummary topicId={topicId} formValues={formValues} initialValues={initialValues} />
       );
       break;
     default:
@@ -105,6 +114,7 @@ FocusForm4ConfirmContainer.propTypes = {
   submitting: PropTypes.bool,
   // from state
   formValues: PropTypes.object.isRequired,
+  formData: PropTypes.string.isRequired,
   // from dispatch
   finishStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
@@ -112,17 +122,37 @@ FocusForm4ConfirmContainer.propTypes = {
 
 const mapStateToProps = state => ({
   formValues: state.form.snapshotFocus.values,
+  formData: formSelector(state, 'focalTechnique'),
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   handlePreviousStep: () => {
     dispatch(goToCreateFocusStep(2));
   },
-  saveFocus: (topicId, values) => ownProps.onDone(topicId, values),
+  // saveFocus: (topicId, values) => ownProps.onDone(topicId, values),
+  backToBuilder: url => dispatch(replace(url)),
 });
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
-  return { ...stateProps, ...dispatchProps, ...ownProps, finishStep: values => dispatchProps.saveFocus(ownProps.topicId, values) };
+  return {
+    ...stateProps,
+    ...dispatchProps,
+    ...ownProps,
+    finishStep: () => {
+      console.log(stateProps.formData);
+      if (stateProps.formData !== FOCAL_TECHNIQUE_REFERENCE_SET) {
+        // create subtopic as normal
+        console.log('generate subtopic');
+        // NOTE: add back values param to finishStep function when below line is uncommented
+        // dispatchProps.saveFocus(ownProps.topicId, values);
+      } else {
+        // go back to subtopic page
+        console.log('focal reference set; go back to subtopic page');
+        // TODO: figure out if we need to include filters here...?
+        dispatchProps.backToBuilder(`/topics/${ownProps.topicId}/snapshot/foci`);
+      }
+    },
+  };
 }
 
 function validate(values, ownProps) {

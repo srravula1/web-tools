@@ -16,7 +16,7 @@ import messages from '../../../../../resources/messages';
 const formSelector = formValueSelector('snapshotFocus');
 
 const FocusForm2ConfigureContainer = (props) => {
-  const { topicId, initialValues, handleNextStep, currentFocalTechnique, handlePreviousStep, location } = props;
+  const { topicId, initialValues, handleNextStep, currentFocalTechnique, handlePreviousStep, location, matchingStoriesConfigStep } = props;
   let content = null;
   switch (currentFocalTechnique) {
     case FOCAL_TECHNIQUE_BOOLEAN_QUERY:
@@ -80,7 +80,7 @@ const FocusForm2ConfigureContainer = (props) => {
           topicId={topicId}
           initialValues={initialValues}
           location={location}
-          startStep={0}
+          startStep={matchingStoriesConfigStep || 0}
         />
       );
       break;
@@ -106,11 +106,13 @@ FocusForm2ConfigureContainer.propTypes = {
   // from state:
   currentFocalTechnique: PropTypes.string.isRequired,
   location: PropTypes.object,
+  matchingStoriesConfigStep: PropTypes.number,
 };
 
 const mapStateToProps = (state, ownProps) => ({
   currentFocalTechnique: formSelector(state, 'focalTechnique'),
   params: ownProps.params,
+  matchingStoriesConfigStep: state.topics.selected.focalSets.create.matchingStoriesConfigWorkflow.currentStep,
 });
 
 const mapDispatchToProps = dispatch => ({
