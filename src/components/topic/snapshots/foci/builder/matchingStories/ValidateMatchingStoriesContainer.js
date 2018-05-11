@@ -4,14 +4,11 @@ import { reduxForm, formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
-import { ReadItNowButton } from '../../../../../common/IconButton';
+import MatchingStory from './MatchingStory';
 import AppButton from '../../../../../common/AppButton';
 import composeIntlForm from '../../../../../common/IntlForm';
 import composeAsyncContainer from '../../../../../common/AsyncContainer';
 import messages from '../../../../../../resources/messages';
-// import MatchingStoriesSummaryContainer from './MatchingStoriesSummaryContainer';
-import LinkWithFilters from '../../../../LinkWithFilters';
-// import TopicStoryTable from '../../../../TopicStoryTable';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { fetchMatchingStoriesSample } from '../../../../../../actions/topics/matchingStoriesActions';
 import { goToCreateFocusStep, goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
@@ -77,69 +74,15 @@ class ValidateMatchingStoriesContainer extends React.Component {
                           <th>{}</th>
                           <th className="match-col"><b>Is this story a match?</b></th>
                         </tr>
-                        {sampleStories.map((story, idx) => {
-                          const match = (sampleLabels[idx] === 1.0);
-                          const prob = Math.round(sampleProbs[idx][match ? 1 : 0] * 100 * 100) / 100;
-                          let firstSentence = '';
-                          // NOTE: the very first sentence tends to repeat the title word-for-word...
-                          if (story.story_sentences[1]) {
-                            firstSentence = story.story_sentences[1].sentence;
-                          }
-
-                          let modelGuess;
-                          if (match) {
-                            modelGuess = (
-                              <div>
-                                <Col lg={6}>
-                                  <p> Our guess: ({prob}%) </p>
-                                </Col>
-                                <Col lg={6} />
-                              </div>
-                            );
-                          } else {
-                            modelGuess = (
-                              <div>
-                                <Row around="lg">
-                                  <Col lg={6} />
-                                  <Col lg={6}>
-                                    <p> Our guess: ({prob}%) </p>
-                                  </Col>
-                                </Row>
-                              </div>
-                            );
-                          }
-
-
-                          return (<tr key={story.stories_id}>
-                            <td>
-                              <Row>
-                                <Col lg={12}>
-                                  <LinkWithFilters to={`/topics/${topicId}/stories/${story.stories_id}`}>
-                                    { story.title }
-                                  </LinkWithFilters>
-                                </Col>
-                              </Row>
-                              <Row>
-                                <Col lg={12}>
-                                  { firstSentence }
-                                </Col>
-                              </Row>
-                            </td>
-                            <td><ReadItNowButton onClick={this.handleReadItClick.bind(this, story)} /></td>
-                            <td>
-                              <Row around="lg">
-                                <Col lg={6}>
-                                  <AppButton className="match" flat onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
-                                </Col>
-                                <Col lg={6}>
-                                  <AppButton className="not-match" flat onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
-                                </Col>
-                              </Row>
-                              { modelGuess }
-                            </td>
-                          </tr>);
-                        })
-                        }
+                        {sampleStories.map((story, idx) =>
+                          <MatchingStory
+                            key={story.stories_id}
+                            topicId={topicId}
+                            story={story}
+                            prob={sampleProbs[idx]}
+                            label={sampleLabels[idx]}
+                          />
+                        )}
                       </tbody>
                     </table>
                   </div>
