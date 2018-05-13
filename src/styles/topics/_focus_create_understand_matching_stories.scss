@@ -1,0 +1,40 @@
+@import '../constants';
+
+// TODO: move these to constants or some matchingStories parent style sheet
+$match-background: #f2fbf9;
+$match-darker: #27877c;
+
+$not-match-background: #fff4f4;
+$not-match: #fb6568;
+$not-match-dark: #fc4145;
+$not-match-darker: #c14d4f;
+
+.focus-create-understand-matchingStories {
+
+  .words-container {
+    width: 100%;
+    background-color: $material-grey100;
+    padding: 20px;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  tr {
+    background-color: transparent !important;
+  }
+
+  td {
+    font-family: monospace;
+  }
+
+  .incorrect-words {
+    background-color: $not-match !important;
+    color: white !important;
+  }
+
+  .incorrect-words :hover {
+    background-color: $not-match-dark !important;
+  }
+}

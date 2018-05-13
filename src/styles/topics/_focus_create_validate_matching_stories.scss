@@ -1,55 +1,118 @@
 @import '../constants';
 
 $match-background: #f2fbf9;
+$match-darker: #20756b;
+
 $not-match-background: #fff4f4;
 $not-match: #fb6568;
-$not-match-dark: #fc4145;
+$not-match-dark: #ce5456;
+$not-match-darker: #9e3d3f;
 
 .focus-create-validate-matchingStories {
 
-  // border-top: 1px solid $material-grey300;
-  // padding-top: 40px;
-  // margin-bottom: 40px;
-
   .sample-story-table {
-    overflow-y: scroll;
+    margin-top: 5%;
+    p {
+      margin: 0px;
+    }
+    h3 {
+      margin: 0px;
+    }
+  }
+
+  .sample-story-container {
+    // overflow-y: scroll;
+    // height: 50%;
+  }
+
+  .sample-story-table-header {
+    background-color: $material-grey200;
+    line-height: 2;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  th.sidebar-col {
+    width: 5%;
   }
 
   th.story-title-col {
-    width: 30%;
+    width: 65%;
   }
 
   th.match-col {
     width: 40%;
   }
 
-  // NOTE: Not sure how else to override...
-  button.app-button.match {
+  .match-btn {
     background-color: $topics-primary !important;
     color: white !important;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
   }
 
-  button.app-button.not-match {
+  .match-btn :hover {
+    background-color: $topics-darker !important;
+  }
+
+  .not-match-btn {
     background-color: $not-match !important;
     color: white !important;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
   }
 
-  .not-match.hovering {
+  // override default AppButton behavior
+  .not-match-btn :hover {
     background-color: $not-match-dark !important;
   }
 
-  .story {
-    border-bottom: 1px solid $material-grey400;
-    border-top: 1px solid $material-grey400;
+  .match-btn-selected {
+    background-color: $match-darker !important;
+    color: white !important;
+    box-shadow: none !important;
   }
 
-  .match {
+  .not-match-btn-selected {
+    background-color: $not-match-darker !important;
+    color: white !important;
+    box-shadow: none !important;
+  }
+
+  .story {
+    border-bottom: 1px solid $material-grey200;
+    border-top: 1px solid $material-grey200;
+    background-color: white;
+    padding: 30px 10px 30px 10px;
+  }
+
+  // Styling for MatchingStory background on selection
+  .correct {
     background-color: $match-background;
     border-left: 5px solid $topics-primary;
   }
 
-  .not-match {
+  .incorrect {
     background-color: $not-match-background;
     border-left: 5px solid $not-match;
+  }
+
+  .undecided {
+    background-color: white;
+    border-left: 5px solid transparent;
+  }
+
+  // styling for 'Our Guess'
+  .correct-guess {
+    color: $topics-primary;
+    font-weight: bold;
+  }
+
+  .incorrect-guess {
+    color: $not-match;
+    font-weight: bold;
+  }
+
+  .undecided-guess {
+    font-weight: normal;
+    color: black;
   }
 }

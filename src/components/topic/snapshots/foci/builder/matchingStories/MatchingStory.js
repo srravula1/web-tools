@@ -4,10 +4,11 @@ import React from 'react';
 // FormattedMessage
 import { injectIntl } from 'react-intl';
 import { Row, Col } from 'react-flexbox-grid/lib';
+import FlatButton from 'material-ui/FlatButton';
 import { ReadItNowButton } from '../../../../../common/IconButton';
-import AppButton from '../../../../../common/AppButton';
+// import AppButton from '../../../../../common/AppButton';
 // import messages from '../../../../../../resources/messages';
-import LinkWithFilters from '../../../../LinkWithFilters';
+// import LinkWithFilters from '../../../../LinkWithFilters';
 
 const localMessages = {
   title: { id: 'focus.create.validate.title', defaultMessage: 'Validating the Model' },
@@ -22,8 +23,8 @@ const localMessages = {
 class MatchingStory extends React.Component {
 
   state = {
+    guess: 'undecided',
     selection: 'none',
-    selected: false,
   };
 
   handleReadItClick = (story) => {
@@ -31,57 +32,82 @@ class MatchingStory extends React.Component {
   }
 
   handleMatch = (e) => {
+    const { label } = this.props;
+    const isMatch = label === 1.0;
     console.log('match');
     console.log(e);
 
     // undo selection if clicking button twice in a row
-    if (this.state.selected && this.state.selection === 'match') {
-      this.setState({ selection: 'none', selected: false });
+    // if (this.state.selected && this.state.selection === 'match') {
+    //   this.setState({ selection: 'none', selected: false });
+    // } else if (isMatch) {
+    // if (isMatch) {
+    //   this.setState({ selection: 'match' }); // , selected: true });
+    // } else {
+    //   this.setState({ selection: 'not-match' }); // , selected: true });
+    // }
+
+    if (isMatch) {
+      this.setState({ selection: 'match', guess: 'correct' }); // , selected: true });
     } else {
-      this.setState({ selection: 'match', selected: true });
+      this.setState({ selection: 'match', guess: 'incorrect' }); // , selected: true });
     }
   }
 
   handleNotAMatch = (e) => {
+    const { label } = this.props;
+    const isMatch = label === 1.0;
     console.log('not a match');
     console.log(e);
     // undo selection if clicking button twice in a row
-    if (this.state.selected && this.state.selection === 'not-match') {
-      this.setState({ selection: 'none', selected: false });
+    // if (this.state.selected && this.state.selection === 'not-match') {
+    //   this.setState({ selection: 'none', selected: false });
+    // } else {
+    //   this.setState({ selection: 'not-match', selected: true });
+    // }
+
+    if (isMatch) {
+      this.setState({ selection: 'not-match', guess: 'incorrect' }); // , selected: true });
     } else {
-      this.setState({ selection: 'not-match', selected: true });
+      this.setState({ selection: 'not-match', guess: 'correct' }); // , selected: true });
     }
   }
 
   render() {
-    const { topicId, story, prob, label } = this.props;
+    const { story, prob, label } = this.props;
     const { formatMessage } = this.props.intl;
 
-    const storyTitle = story.title.length > 50 ? (`${story.title.substring(0, 50)}...`) : story.title;
+    const storyTitle = story.title.length > 75 ? (`${story.title.substring(0, 75)}...`) : story.title;
     // NOTE: the very first sentence tends to repeat the title word-for-word...
     let storyPreview = story.story_sentences[0] ? story.story_sentences[0].sentence : '';
-    storyPreview = storyPreview.length > 30 ? (`${storyPreview.substring(0, 30)}...`) : storyPreview;
+    storyPreview = storyPreview.length > 125 ? (`${storyPreview.substring(0, 125)}...`) : storyPreview;
     const isMatch = (label === 1.0);
     // TODO: double-check that I'm showing the right probability...
     const roundedProb = Math.round(prob[isMatch ? 1 : 0] * 100 * 100) / 100;
+
+    // button selection logic
+    const matchSelectedClass = this.state.selection === 'match' ? '-selected' : '';
+    const notMatchSelectedClass = this.state.selection === 'not-match' ? '-selected' : '';
 
     let modelGuess;
     if (isMatch) {
       modelGuess = (
         <div>
-          <Col lg={6}>
-            <p> Our guess: ({roundedProb}%) </p>
-          </Col>
-          <Col lg={6} />
+          <Row bottom="lg">
+            <Col lg={6}>
+              <p className={`${this.state.guess}-guess`}> Our guess: ({roundedProb}%) </p>
+            </Col>
+            <Col lg={6} />
+          </Row>
         </div>
       );
     } else {
       modelGuess = (
         <div>
-          <Row around="lg">
+          <Row bottom="lg">
             <Col lg={6} />
             <Col lg={6}>
-              <p> Our guess: ({roundedProb}%) </p>
+              <p className={`${this.state.guess}-guess`}> Our guess: ({roundedProb}%) </p>
             </Col>
           </Row>
         </div>
@@ -89,38 +115,38 @@ class MatchingStory extends React.Component {
     }
 
     return (
-      <tr key={story.stories_id} className={`story ${this.state.selection}`}>
-        <td>
+      <Row className={`story ${this.state.guess}`} middle="lg">
+        <Col lg={7}>
           <Row>
             <Col lg={12}>
-              <LinkWithFilters to={`/topics/${topicId}/stories/${story.stories_id}`}>
-                <p>
-                  { storyTitle }
-                </p>
-              </LinkWithFilters>
+              <h3>
+                { storyTitle }
+              </h3>
             </Col>
           </Row>
           <Row>
             <Col lg={12}>
-              <p>
+              <div>
                 { storyPreview }
-              </p>
+              </div>
             </Col>
           </Row>
-        </td>
-        <td><ReadItNowButton onClick={this.handleReadItClick.bind(this, story)} /></td>
-        <td>
-          <Row around="lg">
+        </Col>
+        <Col lg={1}>
+          <ReadItNowButton onClick={this.handleReadItClick.bind(this, story)} />
+        </Col>
+        <Col lg={4}>
+          <Row>
             <Col lg={6}>
-              <AppButton className="match" flat onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
+              <FlatButton className={`match-btn${matchSelectedClass}`} onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
             </Col>
             <Col lg={6}>
-              <AppButton className="not-match hovering" flat onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
+              <FlatButton className={`not-match-btn${notMatchSelectedClass}`} onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
             </Col>
           </Row>
           { modelGuess }
-        </td>
-      </tr>
+        </Col>
+      </Row>
     );
   }
 }

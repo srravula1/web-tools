@@ -12,9 +12,9 @@ import csv as pycsv
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
-# from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import precision_score, recall_score
 from sklearn.externals import joblib
-# from sklearn.metrics import precision_score, recall_score
 
 from server import app, base_dir, TOOL_API_KEY
 from server.views.sources.collection import allowed_file
@@ -74,8 +74,9 @@ def _parse_stories_from_csv_upload(filepath):
 
     return stories_ids, labels
 
-def _save_model_and_vectorizer(model, vectorizer, topics_id, model_name):
+def _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name):
     # See: http://scikit-learn.org/stable/modules/model_persistence.html
+    model_name = subtopic_name.strip().replace(' ', '-')
     MODEL_FILENAME = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
     VECTORIZER_FILENAME = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
     joblib.dump(model, os.path.join(base_dir, 'server', 'static', 'data', MODEL_FILENAME))
@@ -153,7 +154,6 @@ def generate_model(topics_id):
     # print request.form
 
     subtopic_name = request.form.get('topicName')
-    model_name = subtopic_name.strip().replace(' ', '-')
     stories_ids = request.form.get('ids')
     stories_ids = '[' + stories_ids + ']'  # blah supah hack
     stories_ids = json.loads(stories_ids)
@@ -191,39 +191,39 @@ def generate_model(topics_id):
     print model.score(X_train, y_train)
 
     # Cross-Validation
-    # print "Cross-Validation..."
-    # skf = StratifiedKFold(n_splits=3)
-    # test_prec_scores = []
-    # test_rec_scores = []
-    # for train_index, test_index in skf.split(X_train, y_train):
-    #     # print("TRAIN:", train_index, "TEST:", test_index)
-    #     X_train_val, X_test_val = X_train[train_index], X_train[test_index]
-    #     y_train_val, y_test_val = y_train[train_index], y_train[test_index]
-    #     clf = MultinomialNB()
-    #     model = clf.fit(X_train_val, y_train_val)
-    #
-    #     # get precision and recall
-    #     test_prec_score = precision_score(y_test_val, model.predict(X_test_val))
-    #     test_rec_score = recall_score(y_test_val, model.predict(X_test_val))
-    #
-    #     # add scores to lists
-    #     test_prec_scores.append(test_prec_score)
-    #     test_rec_scores.append(test_rec_score)
-    #
-    # print 'average test precision:', np.mean(test_prec_scores)
-    # print 'std:', np.std(test_prec_scores)
-    # print 'average test recall:', np.mean(test_rec_scores)
-    # print 'std:', np.std(test_rec_scores)
+    print "Cross-Validation..."
+    skf = StratifiedKFold(n_splits=3)
+    test_prec_scores = []
+    test_rec_scores = []
+    for train_index, test_index in skf.split(X_train, y_train):
+        # print("TRAIN:", train_index, "TEST:", test_index)
+        X_train_val, X_test_val = X_train[train_index], X_train[test_index]
+        y_train_val, y_test_val = y_train[train_index], y_train[test_index]
+        clf = MultinomialNB()
+        model = clf.fit(X_train_val, y_train_val)
+
+        # get precision and recall
+        test_prec_score = precision_score(y_test_val, model.predict(X_test_val))
+        test_rec_score = recall_score(y_test_val, model.predict(X_test_val))
+
+        # add scores to lists
+        test_prec_scores.append(test_prec_score)
+        test_rec_scores.append(test_rec_score)
+
+    print 'average test precision:', np.mean(test_prec_scores)
+    print 'std:', np.std(test_prec_scores)
+    print 'average test recall:', np.mean(test_rec_scores)
+    print 'std:', np.std(test_rec_scores)
 
     # Pickle model and vectorizer
-    # TODO: pickle precision and recall scores
+    # TODO: pickle precision and recall scores...?
     _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name)
 
     # clean up
     # TODO: remove comment once ready to deploy
     # os.remove(filepath)
 
-    return jsonify({'results': model_name})
+    return jsonify({'precision': np.mean(test_prec_scores), 'recall': np.mean(test_rec_scores)})
 
 
 @app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/prob-words', methods=['GET'])
@@ -263,10 +263,9 @@ def get_probable_words_list(topics_id, focalset_name):
 def classify_random_sample(topics_id, focalset_name):
     print 'focal set name:', focalset_name
 
-    # Get ids for 30 random Stories
-    # TODO: figure out randomization later, for now just grab the first 30 stories from api
+    # Grab 30 random stories from topic
     user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
-    sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', rows=30, sentences=True)
+    sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', sort='random', rows=30, sentences=True)
 
     # Process story sentences and ids
     test_stories_text = []

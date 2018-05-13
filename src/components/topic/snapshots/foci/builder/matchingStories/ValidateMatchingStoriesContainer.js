@@ -27,69 +27,73 @@ const localMessages = {
 
 class ValidateMatchingStoriesContainer extends React.Component {
 
+  // TODO: remove this
   handleReadItClick = (story) => {
     window.open(story.url, '_blank');
   }
 
-  handleMatch = (e) => {
-    console.log('match');
-    console.log(e);
-  }
-
-  handleNotAMatch = (e) => {
-    console.log('not a match');
-    console.log(e);
-  }
-
   render() {
-    const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep, topicId, sampleStories, sampleProbs, sampleLabels } = this.props;
+    const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep, topicId, sampleStories, sampleProbs, sampleLabels, modelPrecision, modelRecall } = this.props;
     const { formatMessage } = this.props.intl;
-    // const nextButtonDisabled = true;
+    const roundedPrecision = Math.round(modelPrecision * 100 * 100) / 100;
+    const roundedRecall = Math.round(modelRecall * 100 * 100) / 100;
     return (
       <Grid>
         <Row center="lg">
-          <Col lg={8}>
+          <Col lg={10}>
             <form className="focus-create-validate-matchingStories" name="focusCreateValidateMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
               <Row start="lg">
-                <Col lg={10}>
-                  <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
-                  <p>
-                    <FormattedMessage {...localMessages.about} />
-                  </p>
+                <Col lg={8} md={12}>
+                  <h1><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h1>
+                  <p><FormattedMessage {...localMessages.about} /></p>
                 </Col>
               </Row>
               <Row start="lg">
-                <Col lg={8} xs={12}>
-                  <p>Recall: 100%</p>
-                  <p>Precision: 100%</p>
+                <Col lg={6}>
+                  <Row middle="lg">
+                    <Col lg={2}>
+                      <p><b>Precision: </b></p>
+                    </Col>
+                    <Col lg={3}>
+                      <code>{`${roundedPrecision}%`}</code>
+                    </Col>
+                    <Col lg={2}>
+                      <p><b>Recall: </b></p>
+                    </Col>
+                    <Col lg={3}>
+                      <code>{`${roundedRecall}%`}</code>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
               <Row start="lg">
                 <Col lg={12}>
                   <div className="sample-story-table">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <th className="story-title-col"><b>Sample Story</b></th>
-                          <th>{}</th>
-                          <th className="match-col"><b>Is this story a match?</b></th>
-                        </tr>
-                        {sampleStories.map((story, idx) =>
-                          <MatchingStory
-                            key={story.stories_id}
-                            topicId={topicId}
-                            story={story}
-                            prob={sampleProbs[idx]}
-                            label={sampleLabels[idx]}
-                          />
-                        )}
-                      </tbody>
-                    </table>
+                    <Row start="lg" className="sample-story-table-header">
+                      <Col lg={7} className="story-title-col">
+                        <b>Sample story</b>
+                      </Col>
+                      <Col lg={1} />
+                      <Col lg={4} className="match-col">
+                        <b>Is this story a match?</b>
+                      </Col>
+                    </Row>
+                    <div className="sample-story-container">
+                      {sampleStories.map((story, idx) =>
+                        <MatchingStory
+                          key={story.stories_id}
+                          topicId={topicId}
+                          story={story}
+                          prob={sampleProbs[idx]}
+                          label={sampleLabels[idx]}
+                        />
+                      )}
+                    </div>
                   </div>
                 </Col>
               </Row>
-              <Row start="lg">
-                <Col lg={12}>
+              <Row end="lg">
+                <Col lg={8} xs={12}>
                   <br />
                   <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
                   &nbsp; &nbsp;
@@ -117,6 +121,8 @@ ValidateMatchingStoriesContainer.propTypes = {
   sampleProbs: PropTypes.array.isRequired,
   sampleLabels: PropTypes.array.isRequired,
   fetchStatus: PropTypes.string.isRequired,
+  modelRecall: PropTypes.number.isRequired,
+  modelPrecision: PropTypes.number.isRequired,
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
@@ -136,6 +142,8 @@ const mapStateToProps = state => ({
   sampleProbs: state.topics.selected.focalSets.create.matchingStoriesSample.probs,
   sampleLabels: state.topics.selected.focalSets.create.matchingStoriesSample.labels,
   modelName: state.topics.selected.focalSets.create.matchingStoriesModelName.name,
+  modelPrecision: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.precision,
+  modelRecall: state.topics.selected.focalSets.create.matchingStoriesGenerateModel.recall,
 });
 
 const mapDispatchToProps = dispatch => ({

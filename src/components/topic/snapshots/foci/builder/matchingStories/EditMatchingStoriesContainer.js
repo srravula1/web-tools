@@ -21,33 +21,39 @@ const localMessages = {
     defaultMessage: 'After naming your new classification and providing some training data, you will be able to see our model\'s prediction on a sample set of stories.' },
   errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a topic name.' },
   directions: { id: 'focalTechnique.matchingStories.directions', defaultMessage: 'Upload training data' },
-  directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 50 stories manually to train our machine learning model. You can use this template to format the data' },
+  directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 50 stories manually to train our machine learning model.' },
   feedback: { id: 'focalTechnique.matchingStories.upload.feedback', defaultMessage: 'This upload was successful' },
 };
 
 
 class EditMatchingStoriesContainer extends React.Component {
 
+  state = {
+    confirmTemplate: false,
+    processingTemplate: false,
+  };
+
   selectedCSV = () => {
-    this.setState({ confirmTemplate: true });
+    this.setState({ confirmTemplate: true, processingTemplate: false });
   }
 
-  confirmLoadCSV = () => {
-    this.setState({ confirmTemplate: false });
-  }
+  // confirmLoadCSV = () => {
+  //   this.setState({ confirmTemplate: false });
+  // }
 
   uploadCSV = () => {
     console.log('upload csv button was pressed');
+    this.setState({ processingTemplate: true });
     const { uploadCSVFile } = this.props;
     const fd = this.textInput.files[0];
     uploadCSVFile(fd);
     this.selectedCSV();
+    // TODO: maybe add some kind of additional check that storiesIds and labels have non-zero lengths
   }
 
   render() {
-    const { renderTextField, currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep } = this.props;
+    const { renderTextField, handleSubmit, handlePreviousStep, handleNextStep, formData } = this.props;
     const { formatMessage } = this.props.intl;
-    // const btnLabel = 'gen model';
 
     // let confirmContent = null;
     // if (storiesIds && storiesIds.length > 0 && this.state && this.state.confirmTemplate) {
@@ -64,15 +70,13 @@ class EditMatchingStoriesContainer extends React.Component {
           <Col lg={8}>
             <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
               <Row start="lg">
-                <Col lg={12}>
-                  <h2><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h2>
-                  <p>
-                    <FormattedMessage {...localMessages.about} />
-                  </p>
+                <Col lg={8} md={12}>
+                  <h1><FormattedMessage {...localMessages.title} /></h1>
+                  <p><FormattedMessage {...localMessages.about} /></p>
                 </Col>
               </Row>
               <Row start="lg">
-                <Col lg={6}>
+                <Col lg={4} xs={12}>
                   <Field
                     name="topicName"
                     component={renderTextField}
@@ -82,21 +86,18 @@ class EditMatchingStoriesContainer extends React.Component {
                 </Col>
               </Row>
               <Row start="lg">
-                <Col lg={8} xs={12}>
+                <Col lg={8} md={12}>
                   <h2><FormattedMessage {...localMessages.directions} /></h2>
-                  <p>
-                    <FormattedMessage {...localMessages.directionsDetails} />
-                  </p>
-                  <input type="file" onChange={this.uploadCSV} ref={(input) => { this.textInput = input; }} disabled={this.state && this.state.confirmTemplate} />
+                  <p><FormattedMessage {...localMessages.directionsDetails} /></p>
+                  <input type="file" onChange={this.uploadCSV} ref={(input) => { this.textInput = input; }} disabled={this.state && this.state.processingTemplate} />
                 </Col>
               </Row>
               <Row end="lg">
-                <Col lg={8}>
+                <Col lg={8} xs={12}>
                   <br />
                   <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
                   &nbsp; &nbsp;
-                  <AppButton type="submit" label={formatMessage(messages.next)} primary />
-                  { /* <AppButton flat onClick={handleNextStep} label={btnLabel} /> */ }
+                  <AppButton primary type="submit" label={formatMessage(messages.next)} disabled={(this.state && !this.state.confirmTemplate) || (formData && !notEmptyString(formData.values.topicName))} />
                 </Col>
               </Row>
             </form>
@@ -105,7 +106,6 @@ class EditMatchingStoriesContainer extends React.Component {
       </Grid>
     );
   }
-
 }
 
 EditMatchingStoriesContainer.propTypes = {
@@ -114,7 +114,6 @@ EditMatchingStoriesContainer.propTypes = {
   initialValues: PropTypes.object,
   // from state
   formData: PropTypes.object,
-  currentKeywords: PropTypes.string,
   currentFocalTechnique: PropTypes.string,
   fetchStatus: PropTypes.string.isRequired,
   storiesIds: PropTypes.array,
@@ -131,7 +130,6 @@ EditMatchingStoriesContainer.propTypes = {
 
 const mapStateToProps = state => ({
   formData: state.form.snapshotFocus,
-  currentKeywords: formSelector(state, 'keywords'),
   currentFocalTechnique: formSelector(state, 'focalTechnique'),
   fetchStatus: state.topics.selected.focalSets.create.matchingStoriesUploadCSV.fetchStatus,
   storiesIds: state.topics.selected.focalSets.create.matchingStoriesUploadCSV.storiesIds,
@@ -144,10 +142,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
   handleNextStep: (e) => {
     console.log(e.topicName);
-    // dispatch(generateModel(ownProps.topicId, { topicName: e.topicName, ids: props.storiesIds, labels: props.labels }))
-    //   .then(() => dispatch(goToMatchingStoriesConfigStep(1)));
-    // dispatch(modelName(e.topicName))
-    //   .then(() => dispatch(goToMatchingStoriesConfigStep(1)));
     dispatch(modelName(e.topicName));
     dispatch(goToMatchingStoriesConfigStep(1));
   },
@@ -165,13 +159,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 function validate(values) {
   const errors = {};
-  if (!notEmptyString(values.keywords)) {
-    errors.keywords = localMessages.errorNoTopicName;
+  console.log('inside validate');
+  console.log(values);
+  if (!notEmptyString(values.topicName)) {
+    errors.topicName = localMessages.errorNoTopicName;
   }
   return errors;
 }
 
-// TODO: figure out what this is
 const reduxFormConfig = {
   form: 'snapshotFocus', // make sure this matches the sub-components and other wizard steps
   destroyOnUnmount: false, // <------ preserve form data
