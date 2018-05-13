@@ -141,16 +141,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     dispatch(goToCreateFocusStep(0));
   },
   handleNextStep: (e) => {
-    console.log(e.topicName);
     dispatch(modelName(e.topicName));
     dispatch(goToMatchingStoriesConfigStep(1));
   },
   uploadCSVFile: (csvFile) => {
     dispatch(uploadTrainingSet({ file: csvFile }))
       .then((results) => {
-        if (results.status === 'Error') {
+        console.log(results);
+        if (results.status === 400) {
+          console.log('error');
           updateFeedback({ open: true, message: ownProps.intl.formatMessage({ id: 'focalTechnique.matchingStories.upload.error', defaultMessage: results.message }) });
         } else {
+          console.log('successful upload');
           dispatch(updateFeedback({ open: true, message: ownProps.intl.formatMessage(localMessages.feedback) }));
         }
       });
@@ -159,8 +161,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 function validate(values) {
   const errors = {};
-  console.log('inside validate');
-  console.log(values);
   if (!notEmptyString(values.topicName)) {
     errors.topicName = localMessages.errorNoTopicName;
   }
