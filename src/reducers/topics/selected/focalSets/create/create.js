@@ -15,7 +15,6 @@ import matchingStoriesConfigWorkflow from './matchingStoriesConfigWorkflow';
 import matchingStoriesModelName from './matchingStoriesModelName';
 import matchingStoriesUploadCSV from './matchingStoriesUploadCSV';
 import matchingStoriesGenerateModel from './matchingStoriesGenerateModel';
-import matchingStoriesProbableWords from './matchingStoriesProbableWords';
 import matchingStoriesSample from './matchingStoriesSample';
 
 const createFocusReducer = combineReducers({
@@ -35,7 +34,6 @@ const createFocusReducer = combineReducers({
   matchingStoriesModelName,
   matchingStoriesUploadCSV,
   matchingStoriesGenerateModel,
-  matchingStoriesProbableWords,
   matchingStoriesSample,
 });
 

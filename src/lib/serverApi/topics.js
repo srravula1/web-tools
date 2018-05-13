@@ -402,11 +402,6 @@ export function matchingStoriesGenerateModel(topicId, params) {
   return createPostingApiPromise(`/api/topics/${topicId}/focal-sets/matching-stories/generate-model`, acceptedParams);
 }
 
-export function matchingStoriesProbableWords(topicId, focalSetName) {
-  // const acceptedParams = acceptParams(params, ['focalSetName']);
-  return createApiPromise(`/api/topics/${topicId}/focal-sets/${focalSetName}/matching-stories/prob-words`);
-}
-
 export function matchingStoriesSample(topicId, focalSetName) {
   return createApiPromise(`/api/topics/${topicId}/focal-sets/${focalSetName}/matching-stories/sample`);
 }

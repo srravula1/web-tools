@@ -5,6 +5,7 @@ const matchingStoriesGenerateModel = createAsyncReducer({
   initialState: {
     precision: 0.0,
     recall: 0.0,
+    topWords: [],
   },
   action: GENERATE_MODEL,
 });

@@ -25,89 +25,80 @@ const localMessages = {
 };
 
 
-class ValidateMatchingStoriesContainer extends React.Component {
-
-  // TODO: remove this
-  handleReadItClick = (story) => {
-    window.open(story.url, '_blank');
-  }
-
-  render() {
-    const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep, topicId, sampleStories, sampleProbs, sampleLabels, modelPrecision, modelRecall } = this.props;
-    const { formatMessage } = this.props.intl;
-    const roundedPrecision = Math.round(modelPrecision * 100 * 100) / 100;
-    const roundedRecall = Math.round(modelRecall * 100 * 100) / 100;
-    return (
-      <Grid>
-        <Row center="lg">
-          <Col lg={10}>
-            <form className="focus-create-validate-matchingStories" name="focusCreateValidateMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
-              <Row start="lg">
-                <Col lg={8} md={12}>
-                  <h1><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h1>
-                  <p><FormattedMessage {...localMessages.about} /></p>
-                </Col>
-              </Row>
-              <Row start="lg">
-                <Col lg={6}>
-                  <Row middle="lg">
-                    <Col lg={2}>
-                      <p><b>Precision: </b></p>
+const ValidateMatchingStoriesContainer = (props) => {
+  const { currentFocalTechnique, handleSubmit, handlePreviousStep, handleNextStep, topicId, sampleStories, sampleProbs, sampleLabels, modelPrecision, modelRecall } = props;
+  const { formatMessage } = props.intl;
+  const roundedPrecision = Math.round(modelPrecision * 100 * 100) / 100;
+  const roundedRecall = Math.round(modelRecall * 100 * 100) / 100;
+  return (
+    <Grid>
+      <Row center="lg">
+        <Col lg={10}>
+          <form className="focus-create-validate-matchingStories" name="focusCreateValidateMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
+            <Row start="lg">
+              <Col lg={8} md={12}>
+                <h1><FormattedMessage {...localMessages.title} values={{ technique: currentFocalTechnique }} /></h1>
+                <p><FormattedMessage {...localMessages.about} /></p>
+              </Col>
+            </Row>
+            <Row start="lg">
+              <Col lg={6}>
+                <Row middle="lg">
+                  <Col lg={2}>
+                    <p><b>Precision: </b></p>
+                  </Col>
+                  <Col lg={3}>
+                    <code>{`${roundedPrecision}%`}</code>
+                  </Col>
+                  <Col lg={2}>
+                    <p><b>Recall: </b></p>
+                  </Col>
+                  <Col lg={3}>
+                    <code>{`${roundedRecall}%`}</code>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+            <Row start="lg">
+              <Col lg={12}>
+                <div className="sample-story-table">
+                  <Row start="lg" className="sample-story-table-header">
+                    <Col lg={7} className="story-title-col">
+                      <b>Sample story</b>
                     </Col>
-                    <Col lg={3}>
-                      <code>{`${roundedPrecision}%`}</code>
-                    </Col>
-                    <Col lg={2}>
-                      <p><b>Recall: </b></p>
-                    </Col>
-                    <Col lg={3}>
-                      <code>{`${roundedRecall}%`}</code>
+                    <Col lg={1} />
+                    <Col lg={4} className="match-col">
+                      <b>Is this story a match?</b>
                     </Col>
                   </Row>
-                </Col>
-              </Row>
-              <Row start="lg">
-                <Col lg={12}>
-                  <div className="sample-story-table">
-                    <Row start="lg" className="sample-story-table-header">
-                      <Col lg={7} className="story-title-col">
-                        <b>Sample story</b>
-                      </Col>
-                      <Col lg={1} />
-                      <Col lg={4} className="match-col">
-                        <b>Is this story a match?</b>
-                      </Col>
-                    </Row>
-                    <div className="sample-story-container">
-                      {sampleStories.map((story, idx) =>
-                        <MatchingStory
-                          key={story.stories_id}
-                          topicId={topicId}
-                          story={story}
-                          prob={sampleProbs[idx]}
-                          label={sampleLabels[idx]}
-                        />
-                      )}
-                    </div>
+                  <div className="sample-story-container">
+                    {sampleStories.map((story, idx) =>
+                      <MatchingStory
+                        key={story.stories_id}
+                        topicId={topicId}
+                        story={story}
+                        prob={sampleProbs[idx]}
+                        label={sampleLabels[idx]}
+                      />
+                    )}
                   </div>
-                </Col>
-              </Row>
-              <Row end="lg">
-                <Col lg={8} xs={12}>
-                  <br />
-                  <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
-                  &nbsp; &nbsp;
-                  <AppButton type="submit" label={formatMessage(messages.next)} primary />
-                </Col>
-              </Row>
-            </form>
-          </Col>
-        </Row>
-      </Grid>
-    );
-  }
-
-}
+                </div>
+              </Col>
+            </Row>
+            <Row end="lg">
+              <Col lg={8} xs={12}>
+                <br />
+                <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
+                &nbsp; &nbsp;
+                <AppButton type="submit" label={formatMessage(messages.next)} primary />
+              </Col>
+            </Row>
+          </form>
+        </Col>
+      </Row>
+    </Grid>
+  );
+};
 
 ValidateMatchingStoriesContainer.propTypes = {
   // from parent
@@ -161,10 +152,7 @@ const mapDispatchToProps = dispatch => ({
 function mergeProps(stateProps, dispatchProps, ownProps) {
   return Object.assign({}, stateProps, dispatchProps, ownProps, {
     asyncFetch: () => {
-      console.log(stateProps.sampleStories);
-      if (stateProps.sampleStories && stateProps.sampleStories.length === 0) {
-        dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
-      }
+      dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
     },
   });
 }

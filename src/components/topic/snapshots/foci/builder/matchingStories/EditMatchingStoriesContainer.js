@@ -4,11 +4,9 @@ import { Field, reduxForm, formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
-// import LoadingSpinner from '../../../../../common/LoadingSpinner';
 import AppButton from '../../../../../common/AppButton';
 import composeIntlForm from '../../../../../common/IntlForm';
 import messages from '../../../../../../resources/messages';
-// import CollectionUploadConfirmer from '../../../../../source/collection/form/CollectionUploadConfirmer';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { updateFeedback } from '../../../../../../actions/appActions';
 import { goToCreateFocusStep, goToMatchingStoriesConfigStep, modelName, uploadTrainingSet } from '../../../../../../actions/topicActions';
@@ -37,12 +35,7 @@ class EditMatchingStoriesContainer extends React.Component {
     this.setState({ confirmTemplate: true, processingTemplate: false });
   }
 
-  // confirmLoadCSV = () => {
-  //   this.setState({ confirmTemplate: false });
-  // }
-
   uploadCSV = () => {
-    console.log('upload csv button was pressed');
     this.setState({ processingTemplate: true });
     const { uploadCSVFile } = this.props;
     const fd = this.textInput.files[0];
@@ -54,15 +47,6 @@ class EditMatchingStoriesContainer extends React.Component {
   render() {
     const { renderTextField, handleSubmit, handlePreviousStep, handleNextStep, formData } = this.props;
     const { formatMessage } = this.props.intl;
-
-    // let confirmContent = null;
-    // if (storiesIds && storiesIds.length > 0 && this.state && this.state.confirmTemplate) {
-    //   confirmContent = (
-    //     <p> Upload Successful! </p>
-    //   );
-    // } else if (this.state && this.state.confirmTemplate) {
-    //   confirmContent = <LoadingSpinner />;
-    // }
 
     return (
       <Grid>
@@ -147,12 +131,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   uploadCSVFile: (csvFile) => {
     dispatch(uploadTrainingSet({ file: csvFile }))
       .then((results) => {
-        console.log(results);
         if (results.status === 400) {
-          console.log('error');
           updateFeedback({ open: true, message: ownProps.intl.formatMessage({ id: 'focalTechnique.matchingStories.upload.error', defaultMessage: results.message }) });
         } else {
-          console.log('successful upload');
           dispatch(updateFeedback({ open: true, message: ownProps.intl.formatMessage(localMessages.feedback) }));
         }
       });

@@ -139,18 +139,15 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     ...dispatchProps,
     ...ownProps,
     finishStep: () => {
-      console.log(stateProps.formData);
-      if (stateProps.formData !== FOCAL_TECHNIQUE_REFERENCE_SET) {
-        // create subtopic as normal
-        console.log('generate subtopic');
-        // NOTE: add back values param to finishStep function when below line is uncommented
-        // dispatchProps.saveFocus(ownProps.topicId, values);
-      } else {
-        // go back to subtopic page
-        console.log('focal reference set; go back to subtopic page');
+      if (stateProps.formData === FOCAL_TECHNIQUE_REFERENCE_SET) {
         // TODO: figure out if we need to include filters here...?
         dispatchProps.backToBuilder(`/topics/${ownProps.topicId}/snapshot/foci`);
       }
+      // } else {
+      //   // create subtopic as normal
+      //   // NOTE: add back values param to finishStep function when below line is uncommented
+      //   // dispatchProps.saveFocus(ownProps.topicId, values);
+      // }
     },
   };
 }

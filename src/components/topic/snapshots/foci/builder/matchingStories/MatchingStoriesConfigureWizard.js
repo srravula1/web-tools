@@ -32,30 +32,6 @@ class MatchingStoriesConfigureWizard extends React.Component {
       ValidateMatchingStoriesContainer,
     ];
     const CurrentStepComponent = steps[currentStep];
-    // let content = null;
-    // switch (currentStep) {
-    //   // TODO: remove case/switch if props are all the same...
-    //   case 0:
-    //     content = (<EditMatchingStoriesContainer
-    //       topicId={topicId}
-    //       initialValues={initialValues}
-    //     />);
-    //     break;
-    //   case 1:
-    //     content = (<UnderstandMatchingStoriesContainer
-    //       topicId={topicId}
-    //       initialValues={initialValues}
-    //     />);
-    //     break;
-    //   case 2:
-    //     content = (<ValidateMatchingStoriesContainer
-    //       topicId={topicId}
-    //       initialValues={initialValues}
-    //     />);
-    //     break;
-    //   default:
-    //     content = <FormattedMessage {...messages.unimplemented} />;
-    // }
     return (
       <div className="matching-stories-configure-wizard">
         <CurrentStepComponent topicId={topicId} location={location} initialValues={initialValues} />
