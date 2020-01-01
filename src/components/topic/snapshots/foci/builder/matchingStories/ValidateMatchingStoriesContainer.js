@@ -6,8 +6,8 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import MatchingStory from './MatchingStory';
 import AppButton from '../../../../../common/AppButton';
-import composeIntlForm from '../../../../../common/IntlForm';
-import composeAsyncContainer from '../../../../../common/AsyncContainer';
+import withIntlForm from '../../../../../common/hocs/IntlForm';
+import withAsyncData from '../../../../../common/hocs/AsyncDataContainer';
 import messages from '../../../../../../resources/messages';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { fetchMatchingStoriesSample } from '../../../../../../actions/topics/matchingStoriesActions';
@@ -19,7 +19,7 @@ const localMessages = {
   title: { id: 'focus.create.validate.title', defaultMessage: 'Validating the Model' },
   about: { id: 'focus.create.edit.about',
     defaultMessage: 'Here are 30 stories from the topic. Check to see if our model\'s predictions were correct.' },
-  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a topic name.' },
+  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a classification name.' },
   match: { id: 'focus.create.validate.match', defaultMessage: 'Match' },
   notMatch: { id: 'focus.create.validate.noMatch', defaultMessage: 'Not a match' },
 };
@@ -72,7 +72,7 @@ const ValidateMatchingStoriesContainer = (props) => {
                     </Col>
                   </Row>
                   <div className="sample-story-container">
-                    {sampleStories.map((story, idx) =>
+                    {sampleStories.map((story, idx) => (
                       <MatchingStory
                         key={story.stories_id}
                         topicId={topicId}
@@ -80,7 +80,7 @@ const ValidateMatchingStoriesContainer = (props) => {
                         prob={sampleProbs[idx]}
                         label={sampleLabels[idx]}
                       />
-                    )}
+                    ))}
                   </div>
                 </div>
               </Col>
@@ -144,18 +144,7 @@ const mapDispatchToProps = dispatch => ({
   handleNextStep: () => {
     dispatch(goToCreateFocusStep(2));
   },
-  fetchStoriesSample: (topicId, modelName) => {
-    dispatch(fetchMatchingStoriesSample(topicId, modelName));
-  },
 });
-
-function mergeProps(stateProps, dispatchProps, ownProps) {
-  return Object.assign({}, stateProps, dispatchProps, ownProps, {
-    asyncFetch: () => {
-      dispatchProps.fetchStoriesSample(ownProps.topicId, stateProps.modelName);
-    },
-  });
-}
 
 function validate(values) {
   const errors = {};
@@ -172,15 +161,17 @@ const reduxFormConfig = {
   validate,
 };
 
+const fetchAsyncData = (dispatch, { topicId, modelName }) => dispatch(fetchMatchingStoriesSample(topicId, modelName));
+
 export default
-  injectIntl(
-    composeIntlForm(
-      reduxForm(reduxFormConfig)(
-        connect(mapStateToProps, mapDispatchToProps, mergeProps)(
-          composeAsyncContainer(
-            ValidateMatchingStoriesContainer
-          )
+injectIntl(
+  withIntlForm(
+    reduxForm(reduxFormConfig)(
+      connect(mapStateToProps, mapDispatchToProps)(
+        withAsyncData(fetchAsyncData)(
+          ValidateMatchingStoriesContainer
         )
       )
     )
-  );
+  )
+);

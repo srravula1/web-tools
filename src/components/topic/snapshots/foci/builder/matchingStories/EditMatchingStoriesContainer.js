@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import AppButton from '../../../../../common/AppButton';
-import composeIntlForm from '../../../../../common/IntlForm';
+import withIntlForm from '../../../../../common/hocs/IntlForm';
 import messages from '../../../../../../resources/messages';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { updateFeedback } from '../../../../../../actions/appActions';
@@ -17,7 +17,7 @@ const localMessages = {
   title: { id: 'focus.create.edit.title', defaultMessage: 'Create New Classification' },
   about: { id: 'focus.create.edit.about',
     defaultMessage: 'After naming your new classification and providing some training data, you will be able to see our model\'s prediction on a sample set of stories.' },
-  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a topic name.' },
+  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a classification name.' },
   directions: { id: 'focalTechnique.matchingStories.directions', defaultMessage: 'Upload training data' },
   directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 50 stories manually to train our machine learning model.' },
   feedback: { id: 'focalTechnique.matchingStories.upload.feedback', defaultMessage: 'This upload was successful' },
@@ -25,7 +25,6 @@ const localMessages = {
 
 
 class EditMatchingStoriesContainer extends React.Component {
-
   state = {
     confirmTemplate: false,
     processingTemplate: false,
@@ -54,30 +53,30 @@ class EditMatchingStoriesContainer extends React.Component {
           <Col lg={8}>
             <form className="focus-create-edit-matchingStories" name="focusCreateEditMatchingStoriesForm" onSubmit={handleSubmit(handleNextStep.bind(this))}>
               <Row start="lg">
-                <Col lg={8} md={12}>
+                <Col lg={12}>
                   <h1><FormattedMessage {...localMessages.title} /></h1>
                   <p><FormattedMessage {...localMessages.about} /></p>
                 </Col>
               </Row>
               <Row start="lg">
-                <Col lg={4} xs={12}>
+                <Col lg={6}>
                   <Field
                     name="topicName"
                     component={renderTextField}
-                    floatingLabelText={'Enter a name'}
+                    floatingLabelText="Enter a name"
                     fullWidth
                   />
                 </Col>
               </Row>
               <Row start="lg">
-                <Col lg={8} md={12}>
+                <Col lg={12}>
                   <h2><FormattedMessage {...localMessages.directions} /></h2>
                   <p><FormattedMessage {...localMessages.directionsDetails} /></p>
                   <input type="file" onChange={this.uploadCSV} ref={(input) => { this.textInput = input; }} disabled={this.state && this.state.processingTemplate} />
                 </Col>
               </Row>
               <Row end="lg">
-                <Col lg={8} xs={12}>
+                <Col lg={12}>
                   <br />
                   <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
                   &nbsp; &nbsp;
@@ -156,12 +155,12 @@ const reduxFormConfig = {
 };
 
 export default
-  injectIntl(
-    composeIntlForm(
-      reduxForm(reduxFormConfig)(
-        connect(mapStateToProps, mapDispatchToProps)(
-          EditMatchingStoriesContainer
-        )
+injectIntl(
+  withIntlForm(
+    reduxForm(reduxFormConfig)(
+      connect(mapStateToProps, mapDispatchToProps)(
+        EditMatchingStoriesContainer
       )
     )
-  );
+  )
+);

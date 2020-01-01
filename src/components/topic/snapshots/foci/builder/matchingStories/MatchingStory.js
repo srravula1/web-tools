@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { injectIntl } from 'react-intl';
 import { Row, Col } from 'react-flexbox-grid/lib';
-import FlatButton from 'material-ui/FlatButton';
+import AppButton from '../../../../../common/AppButton';
 import { ReadItNowButton } from '../../../../../common/IconButton';
 
 const localMessages = {
@@ -11,7 +11,6 @@ const localMessages = {
 };
 
 class MatchingStory extends React.Component {
-
   state = {
     guess: 'undecided',
     selection: 'none',
@@ -107,10 +106,10 @@ class MatchingStory extends React.Component {
         <Col lg={4}>
           <Row>
             <Col lg={6}>
-              <FlatButton className={`match-btn${matchSelectedClass}`} onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
+              <AppButton className={`match-btn${matchSelectedClass}`} onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
             </Col>
             <Col lg={6}>
-              <FlatButton className={`not-match-btn${notMatchSelectedClass}`} onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
+              <AppButton className={`not-match-btn${notMatchSelectedClass}`} onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
             </Col>
           </Row>
           { modelGuess }
@@ -135,7 +134,4 @@ MatchingStory.propTypes = {
   intl: PropTypes.object.isRequired,
 };
 
-export default
-  injectIntl(
-    MatchingStory
-  );
+export default injectIntl(MatchingStory);

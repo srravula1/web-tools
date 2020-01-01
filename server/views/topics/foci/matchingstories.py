@@ -4,8 +4,8 @@ import flask_login
 import json
 import os
 import re
+import tempfile
 import time
-import codecs
 from werkzeug.utils import secure_filename
 import csv as pycsv
 
@@ -18,23 +18,25 @@ from sklearn.externals import joblib
 
 from server import app, base_dir, TOOL_API_KEY
 from server.views.sources.collection import allowed_file
-from server.util.request import api_error_handler, json_error_response, form_fields_required, arguments_required
-from server.auth import user_mediacloud_key, user_mediacloud_client, user_admin_mediacloud_client
+from server.util.request import api_error_handler, json_error_response
+from server.auth import user_admin_mediacloud_client
 
 logger = logging.getLogger(__name__)
 
-MODEL_FILENAME_TEMPLATE = 'topic-{}-{}.pkl' # topic id, model_name
-VECTORIZER_FILENAME_TEMPLATE = 'topic-{}-{}-vec.pkl' # topic id, model_name
-SAMPLE_STORIES_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories.txt' # topic id, model name
-SAMPLE_STORIES_IDS_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories-ids.txt' # topic id, model name
+MODEL_FILENAME_TEMPLATE = 'topic-{}-{}.pkl'  # topic id, model_name
+VECTORIZER_FILENAME_TEMPLATE = 'topic-{}-{}-vec.pkl'  # topic id, model_name
+SAMPLE_STORIES_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories.txt'  # topic id, model name
+SAMPLE_STORIES_IDS_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories-ids.txt'  # topic id, model name
 TRAINING_SET_HEADERS = ['stories_id', 'label']
 
 MIN_DF_DEFAULT = 0.1
 MAX_DF_DEFAULT = 0.9
 
+
 def download_template():
     # TODO
     pass
+
 
 def _parse_stories_from_csv_upload(filepath):
     acceptable_column_names = TRAINING_SET_HEADERS
@@ -44,21 +46,22 @@ def _parse_stories_from_csv_upload(filepath):
         reader.fieldnames = acceptable_column_names
         stories_ids = []
         labels = []
-        reader.next()   # skip column headers
-        for row_num, row in enumerate(reader):
+        row_num = 1
+        next(reader)  # skip column headers
+        for row in reader:
             stories_id = row['stories_id']
             label = row['label']
 
             # validate row entries
             try:
                 stories_id = int(stories_id)
-            except Exception as e:
+            except Exception:
                 err_msg = "Couldn't process row number {}: invalid stories_id".format(str(row_num + 2))
                 logger.error(err_msg)
                 raise Exception(err_msg)
             try:
                 label = int(label)
-            except Exception as e:
+            except Exception:
                 err_msg = "Couldn't process row number {}: label must be 0 or 1".format(str(row_num + 2))
                 logger.error(err_msg)
                 raise Exception(err_msg)
@@ -69,36 +72,43 @@ def _parse_stories_from_csv_upload(filepath):
 
             stories_ids.append(stories_id)
             labels.append(label)
+            row_num += 1
 
     return stories_ids, labels
+
 
 def _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name):
     # See: http://scikit-learn.org/stable/modules/model_persistence.html
     model_name = subtopic_name.strip().replace(' ', '-')
-    MODEL_FILENAME = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
-    VECTORIZER_FILENAME = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
-    joblib.dump(model, os.path.join(base_dir, 'server', 'static', 'data', MODEL_FILENAME))
-    joblib.dump(vectorizer, os.path.join(base_dir, 'server', 'static', 'data', VECTORIZER_FILENAME))
+    model_filename = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
+    vectorizer_filename = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
+    joblib.dump(model, os.path.join(base_dir, 'server', 'static', 'data', model_filename))
+    joblib.dump(vectorizer, os.path.join(base_dir, 'server', 'static', 'data', vectorizer_filename))
+
 
 def _load_model_and_vectorizer(topics_id, subtopic_name):
     model_name = subtopic_name.strip().replace(' ', '-')
-    MODEL_FILENAME = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
-    VECTORIZER_FILENAME = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
-    model = joblib.load(os.path.join(base_dir, 'server', 'static', 'data', MODEL_FILENAME))
-    vectorizer = joblib.load(os.path.join(base_dir, 'server', 'static', 'data', VECTORIZER_FILENAME))
-    return (model, vectorizer)
+    model_filename = MODEL_FILENAME_TEMPLATE.format(topics_id, model_name)
+    vectorizer_filename = VECTORIZER_FILENAME_TEMPLATE.format(topics_id, model_name)
+    model = joblib.load(os.path.join(base_dir, 'server', 'static', 'data', model_filename))
+    vectorizer = joblib.load(os.path.join(base_dir, 'server', 'static', 'data', vectorizer_filename))
+    return model, vectorizer
 
-def _download_stories_text(stories_ids, filepath):
+
+#@cache.cache_on_arguments()
+def _download_stories_text(stories_ids):
     user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
-    with codecs.open(filepath, 'w', 'utf-8') as fp:
-        for story_id in stories_ids:
-            story_details = user_mc.story(story_id, sentences=True)
-            sentences = story_details['story_sentences']
-            for sd in sentences:
-                sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
-                sent = re.sub(r'[\s-]', ' ', sent)
-                fp.write(sent.lower() + ' ')
-            fp.write(u'\n')
+    fp = tempfile.NamedTemporaryFile(mode='w')
+    for story_id in stories_ids:
+        story_details = user_mc.story(story_id, sentences=True)
+        sentences = story_details['story_sentences']
+        for sd in sentences:
+            sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
+            sent = re.sub(r'[\s-]', ' ', sent)
+            fp.write(sent.lower() + ' ')
+        fp.write(u'\n')
+    return fp.name  # actually the path
+
 
 @app.route('/api/topics/focal-sets/matching-stories/upload-training-set', methods=['POST'])
 @flask_login.login_required
@@ -126,7 +136,7 @@ def upload_reference_set():
     except Exception as e:
         return json_error_response(str(e))
 
-    if len(stories_ids) > 300:
+    if len(stories_ids) > 500:
         # TODO: determine appropriate training set limit
         return jsonify({'status': 'Error', 'message': 'Too many stories in training set. The limit is 300.'})
     else:
@@ -137,6 +147,7 @@ def upload_reference_set():
 
         return jsonify({'storiesIds': stories_ids, 'labels': labels})
 
+
 @app.route('/api/topics/<topics_id>/focal-sets/matching-stories/generate-model', methods=['POST'])
 @flask_login.login_required
 @api_error_handler
@@ -144,14 +155,11 @@ def generate_model(topics_id):
     subtopic_name = request.form.get('topicName')
     stories_ids = json.loads('[{}]'.format(request.form.get('ids')))
     labels = json.loads('[{}]'.format(request.form.get('labels')))
-    filename = 'training-story-text.txt'
 
     # download text of stories from story_ids list
     logger.debug('Downloading story sentences...')
     start = time.time()
-    filepath = os.path.join(base_dir, 'server', 'static', 'data', filename)
-    if not os.path.isfile(filepath): # add this check for dev so we aren't downloading these stories a zillion times
-        _download_stories_text(stories_ids, filepath)
+    filepath = _download_stories_text(stories_ids)
     end = time.time()
     logger.debug('Download time: {}'.format(end - start))
 
@@ -162,30 +170,30 @@ def generate_model(topics_id):
 
     vectorizer = TfidfVectorizer(sublinear_tf=True, stop_words='english', min_df=MIN_DF_DEFAULT, max_df=MAX_DF_DEFAULT)
     vectorizer.fit(stories)
-    X_train = vectorizer.transform(stories)
+    x_train = vectorizer.transform(stories)
     y_train = np.asarray(labels)
-    logger.debug('number of examples: {}'.format(str(X_train.shape)))
+    logger.debug('number of examples: {}'.format(str(x_train.shape)))
     logger.debug('number of labels: {}'.format(str(y_train.shape)))
 
     # Train model
     logger.debug('Training model...')
     clf = MultinomialNB()
-    model = clf.fit(X_train, y_train)
+    model = clf.fit(x_train, y_train)
 
     # Cross-Validation
     logger.debug('Cross-Validating...')
     skf = StratifiedKFold(n_splits=3)
     test_prec_scores = []
     test_rec_scores = []
-    for train_index, test_index in skf.split(X_train, y_train):
-        X_train_val, X_test_val = X_train[train_index], X_train[test_index]
+    for train_index, test_index in skf.split(x_train, y_train):
+        x_train_val, x_test_val = x_train[train_index], x_train[test_index]
         y_train_val, y_test_val = y_train[train_index], y_train[test_index]
         clf = MultinomialNB()
-        model = clf.fit(X_train_val, y_train_val)
+        model = clf.fit(x_train_val, y_train_val)
 
         # get precision and recall
-        test_prec_score = precision_score(y_test_val, model.predict(X_test_val))
-        test_rec_score = recall_score(y_test_val, model.predict(X_test_val))
+        test_prec_score = precision_score(y_test_val, model.predict(x_test_val))
+        test_rec_score = recall_score(y_test_val, model.predict(x_test_val))
 
         # add scores to lists
         test_prec_scores.append(test_prec_score)
@@ -197,12 +205,12 @@ def generate_model(topics_id):
     logger.debug('average test recall: {}'.format(str(recall)))
 
     # Get most likely words
-    NUM_TOP_WORDS = 20
+    num_top_words = 20
     probs_0 = model.feature_log_prob_[0].tolist()
     probs_1 = model.feature_log_prob_[1].tolist()
 
     # Map words to model probabilities
-    vocab = vectorizer.vocabulary_ # (maps terms to feature indices)
+    vocab = vectorizer.vocabulary_  # (maps terms to feature indices)
     word_to_probs_0 = {}
     word_to_probs_1 = {}
     for v in vocab.keys():
@@ -213,9 +221,9 @@ def generate_model(topics_id):
         word_to_probs_1[v] = prob_1
 
     # Get most probable words
-    top_words_0 = sorted(word_to_probs_0.items(), key=lambda x: x[1], reverse=True)[:NUM_TOP_WORDS]
+    top_words_0 = sorted(word_to_probs_0.items(), key=lambda x: x[1], reverse=True)[:num_top_words]
     top_words_0 = map(lambda x: x[0], top_words_0)
-    top_words_1 = sorted(word_to_probs_1.items(), key=lambda x: x[1], reverse=True)[:NUM_TOP_WORDS]
+    top_words_1 = sorted(word_to_probs_1.items(), key=lambda x: x[1], reverse=True)[:num_top_words]
     top_words_1 = map(lambda x: x[0], top_words_1)
 
     # Pickle model and vectorizer
@@ -252,8 +260,8 @@ def classify_random_sample(topics_id, focalset_name):
 
     # Get predictions on samples
     model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)
-    X_test = vectorizer.transform(test_stories_text)
-    predicted_labels = model.predict(X_test).tolist()
-    predicted_probs = model.predict_proba(X_test).tolist()
+    x_test = vectorizer.transform(test_stories_text)
+    predicted_labels = model.predict(x_test).tolist()
+    predicted_probs = model.predict_proba(x_test).tolist()
 
     return jsonify({'sampleStories': test_stories, 'labels': predicted_labels, 'probs': predicted_probs})

@@ -3,11 +3,10 @@ import React from 'react';
 import { reduxForm, formValueSelector } from 'redux-form';
 import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import FlatButton from 'material-ui/FlatButton';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import AppButton from '../../../../../common/AppButton';
-import composeIntlForm from '../../../../../common/IntlForm';
-import composeAsyncContainer from '../../../../../common/AsyncContainer';
+import composeIntlForm from '../../../../../common/hocs/IntlForm';
+import withAsycData from '../../../../../common/hocs/AsyncDataContainer';
 import { notEmptyString } from '../../../../../../lib/formValidators';
 import { generateModel } from '../../../../../../actions/topics/matchingStoriesActions';
 import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
@@ -18,7 +17,7 @@ const localMessages = {
   title: { id: 'focus.create.understand.title', defaultMessage: 'Understanding the Model' },
   about: { id: 'focus.create.edit.about',
     defaultMessage: 'Stories including these words are likely to be classified as your topic:' },
-  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a topic name.' },
+  errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a classification name.' },
   directions: { id: 'focalTechnique.matchingStories.directions', defaultMessage: 'Upload training data' },
   directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 25 stories manually to train our machine learning model. You can use this template to format the data' },
 };
@@ -84,9 +83,9 @@ const UnderstandMatchingStoriesContainer = (props) => {
                 <br />
                 <h3> {'Do these words seem correct?'} </h3>
                 <p> {'If the words are correct, you can proceed to validating the model. If they are incorrect, you can upload a new set of training data.'} </p>
-                <FlatButton className="incorrect-words" onClick={handlePreviousStep} label={'No'} />
+                <AppButton className="incorrect-words" onClick={handlePreviousStep} label="No" />
                 &nbsp; &nbsp;
-                <AppButton type="submit" label={'Yes'} primary />
+                <AppButton type="submit" label="Yes" primary />
               </Col>
             </Row>
           </form>
@@ -110,7 +109,6 @@ UnderstandMatchingStoriesContainer.propTypes = {
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
-  fetchModel: PropTypes.func.isRequired,
   asyncFetch: PropTypes.func.isRequired,
   // from compositional helper
   intl: PropTypes.object.isRequired,
@@ -136,16 +134,7 @@ const mapDispatchToProps = dispatch => ({
   handleNextStep: () => {
     dispatch(goToMatchingStoriesConfigStep(2));
   },
-  fetchModel: (topicId, topicName, ids, labels) => {
-    dispatch(generateModel(topicId, { topicName, ids, labels }));
-  },
 });
-
-function mergeProps(stateProps, dispatchProps, ownProps) {
-  return Object.assign({}, stateProps, dispatchProps, ownProps, {
-    asyncFetch: () => dispatchProps.fetchModel(ownProps.topicId, stateProps.modelName, stateProps.storiesIds, stateProps.labels),
-  });
-}
 
 function validate(values) {
   const errors = {};
@@ -162,15 +151,17 @@ const reduxFormConfig = {
   validate,
 };
 
+const fetchAsyncData = (dispatch, { topicId, topicName, ids, labels }) => dispatch(generateModel(topicId, { topicName, ids, labels }));
+
 export default
-  injectIntl(
-    composeIntlForm(
-      reduxForm(reduxFormConfig)(
-        connect(mapStateToProps, mapDispatchToProps, mergeProps)(
-          composeAsyncContainer(
-            UnderstandMatchingStoriesContainer
-          )
+injectIntl(
+  composeIntlForm(
+    reduxForm(reduxFormConfig)(
+      connect(mapStateToProps, mapDispatchToProps)(
+        withAsycData(fetchAsyncData)(
+          UnderstandMatchingStoriesContainer
         )
       )
     )
-  );
+  )
+);
