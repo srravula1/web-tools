@@ -63,7 +63,6 @@ class EditMatchingStoriesContainer extends React.Component {
                   <Field
                     name="topicName"
                     component={renderTextField}
-                    floatingLabelText="Enter a name"
                     fullWidth
                   />
                 </Col>
@@ -78,7 +77,7 @@ class EditMatchingStoriesContainer extends React.Component {
               <Row end="lg">
                 <Col lg={12}>
                   <br />
-                  <AppButton flat onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
+                  <AppButton secondary onClick={handlePreviousStep} label={formatMessage(messages.previous)} />
                   &nbsp; &nbsp;
                   <AppButton primary type="submit" label={formatMessage(messages.next)} disabled={(this.state && !this.state.confirmTemplate) || (formData && !notEmptyString(formData.values.topicName))} />
                 </Col>

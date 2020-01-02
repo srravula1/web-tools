@@ -117,7 +117,6 @@ ValidateMatchingStoriesContainer.propTypes = {
   // from dispatch
   handleNextStep: PropTypes.func.isRequired,
   handlePreviousStep: PropTypes.func.isRequired,
-  asyncFetch: PropTypes.func.isRequired,
   // from compositional helper
   intl: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,

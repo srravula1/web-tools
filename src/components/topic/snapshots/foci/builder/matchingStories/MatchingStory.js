@@ -2,8 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { injectIntl } from 'react-intl';
 import { Row, Col } from 'react-flexbox-grid/lib';
-import AppButton from '../../../../../common/AppButton';
-import { ReadItNowButton } from '../../../../../common/IconButton';
+import StoryFeedbackRow, { MATCH_STATES } from '../../../../wizard/StoryFeedbackRow';
 
 const localMessages = {
   match: { id: 'focus.create.validate.match', defaultMessage: 'Match' },
@@ -11,54 +10,32 @@ const localMessages = {
 };
 
 class MatchingStory extends React.Component {
-  state = {
-    guess: 'undecided',
-    selection: 'none',
-  };
-
-  handleReadItClick = (story) => {
-    window.open(story.url, '_blank');
+  constructor(props) {
+    super(props);
+    const { label } = this.props;
+    this.state = {
+      predictedMatch: (label === 1.0),
+      matchState: (label === 1.0) ? MATCH_STATES.match : MATCH_STATES.notMatch,
+      guess: 'undecided',
+    };
   }
 
   handleMatch = () => {
-    const { label } = this.props;
-    const isMatch = label === 1.0;
-
-    if (isMatch) {
-      this.setState({ selection: 'match', guess: 'correct' });
-    } else {
-      this.setState({ selection: 'match', guess: 'incorrect' });
-    }
+    this.setState((prevState) => ({ matchState: MATCH_STATES.match, guess: (prevState.predictedMatch) ? 'correct' : 'incorrect' }));
   }
 
   handleNotAMatch = () => {
-    const { label } = this.props;
-    const isMatch = label === 1.0;
-
-    if (isMatch) {
-      this.setState({ selection: 'not-match', guess: 'incorrect' });
-    } else {
-      this.setState({ selection: 'not-match', guess: 'correct' });
-    }
+    this.setState((prevState) => ({ matchState: MATCH_STATES.notMatch, guess: (prevState.predictedMatch) ? 'incorrect' : 'correct' }));
   }
 
   render() {
     const { story, prob, label } = this.props;
-    const { formatMessage } = this.props.intl;
 
-    const storyTitle = story.title.length > 75 ? (`${story.title.substring(0, 75)}...`) : story.title;
-    // NOTE: the very first sentence tends to repeat the title word-for-word...
-    let storyPreview = story.story_sentences[0] ? story.story_sentences[0].sentence : '';
-    storyPreview = storyPreview.length > 125 ? (`${storyPreview.substring(0, 125)}...`) : storyPreview;
     const isMatch = (label === 1.0);
     const roundedProb = Math.round(prob[isMatch ? 1 : 0] * 100 * 100) / 100;
 
-    // button selection logic
-    const matchSelectedClass = this.state.selection === 'match' ? '-selected' : '';
-    const notMatchSelectedClass = this.state.selection === 'not-match' ? '-selected' : '';
-
     let modelGuess;
-    if (isMatch) {
+    if (this.state.predictedMatch) {
       modelGuess = (
         <div>
           <Row bottom="lg">
@@ -83,38 +60,17 @@ class MatchingStory extends React.Component {
     }
 
     return (
-      <Row className={`story ${this.state.guess}`} middle="lg">
-        <Col lg={7}>
-          <Row>
-            <Col lg={12}>
-              <h3>
-                { storyTitle }
-              </h3>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={12}>
-              <div>
-                { storyPreview }
-              </div>
-            </Col>
-          </Row>
-        </Col>
-        <Col lg={1}>
-          <ReadItNowButton onClick={this.handleReadItClick.bind(this, story)} />
-        </Col>
-        <Col lg={4}>
-          <Row>
-            <Col lg={6}>
-              <AppButton className={`match-btn${matchSelectedClass}`} onClick={this.handleMatch} label={formatMessage(localMessages.match)} />
-            </Col>
-            <Col lg={6}>
-              <AppButton className={`not-match-btn${notMatchSelectedClass}`} onClick={this.handleNotAMatch} label={formatMessage(localMessages.notMatch)} />
-            </Col>
-          </Row>
-          { modelGuess }
-        </Col>
-      </Row>
+      <StoryFeedbackRow
+        defaultMatchState={this.state.matchState}
+        key={story.stories_id}
+        story={story}
+        maxTitleLength={85}
+        yesMessage={localMessages.match}
+        handleYesClick={this.handleMatch}
+        noMessage={localMessages.noMatch}
+        handleNoClick={this.handleNotAMatch}
+        feedbackContent={modelGuess}
+      />
     );
   }
 }

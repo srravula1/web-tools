@@ -8,18 +8,15 @@ import tempfile
 import time
 import csv
 from werkzeug.utils import secure_filename
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import precision_score, recall_score
 from sklearn.externals import joblib
 
-from server import app, base_dir, TOOL_API_KEY, mc
+from server import app, base_dir, TOOL_API_KEY
 from server.views.sources.collection import allowed_file
 from server.util.request import api_error_handler, json_error_response
-from server.auth import user_admin_mediacloud_client
-import server.views.topics.apicache as api_cache
+from server.auth import user_mediacloud_key
+import server.util.classifier as classifier
+import server.views.topics.apicache as apicache
+import server.views.apicache as base_apicache
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +25,6 @@ VECTORIZER_FILENAME_TEMPLATE = 'topic-{}-{}-vec.pkl'  # topic id, model_name
 SAMPLE_STORIES_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories.txt'  # topic id, model name
 SAMPLE_STORIES_IDS_FILENAME_TEMPLATE = 'topic-{}-{}-sample-stories-ids.txt'  # topic id, model name
 TRAINING_SET_HEADERS = ['stories_id', 'label']
-
-MIN_DF_DEFAULT = 0.1
-MAX_DF_DEFAULT = 0.9
 
 
 def download_template():
@@ -95,21 +89,6 @@ def _load_model_and_vectorizer(topics_id, subtopic_name):
     return model, vectorizer
 
 
-def _download_stories_text(story_ids, dest_path):
-    # need to use the tool client here to get raw sentences, and fetch one-by-one to ensure results appear
-    stories = [api_cache.story(TOOL_API_KEY, stories_id, sentences=True) for stories_id in story_ids]
-    #story_ids_str = " ".join([str(story_id) for story_id in story_ids])
-    #stories = api_cache.story_list(TOOL_API_KEY, "stories_id:({})".format(story_ids),
-    #                               rows=len(story_ids), sentences=True)
-    with open(dest_path, 'w') as fp:
-        for story in stories:
-            for sd in story['story_sentences']:
-                sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
-                sent = re.sub(r'[\s-]', ' ', sent)
-                fp.write(sent.lower() + ' ')
-            fp.write('\n')
-
-
 @app.route('/api/topics/focal-sets/matching-stories/upload-training-set', methods=['POST'])
 @flask_login.login_required
 @api_error_handler
@@ -153,114 +132,37 @@ def upload_reference_set():
 @api_error_handler
 def generate_model(topics_id):
     subtopic_name = request.form.get('modelName')
-    stories_ids = json.loads('[{}]'.format(request.form.get('ids')))
+    story_ids = json.loads('[{}]'.format(request.form.get('ids')))
     labels = json.loads('[{}]'.format(request.form.get('labels')))
-    if len(stories_ids) != len(labels):
-        return json_error_response('Not all stories labeled ({} stories, {} labels)'.format(len(stories_ids), len(labels)))
-
-    # download text of stories from story_ids list
-    logger.debug('Downloading story sentences...')
-    start = time.time()
+    if len(story_ids) != len(labels):
+        # a useful sanity check
+        return json_error_response('Not all stories labeled ({} stories, {} labels)'.format(len(story_ids), len(labels)))
+    # download text and train model
     fp = tempfile.NamedTemporaryFile(mode='w')
-    _download_stories_text(stories_ids, fp.name)
-    end = time.time()
-    logger.debug('Download time: {}'.format(end - start))
-
-    # Load and vectorize data
-    with open(fp.name) as f:
-        stories = f.readlines()
-    logger.debug('number of stories: {}'.format(len(stories)))
-    vectorizer = TfidfVectorizer(sublinear_tf=True, stop_words='english', min_df=MIN_DF_DEFAULT, max_df=MAX_DF_DEFAULT)
-    vectorizer.fit(stories)
-    x_train = vectorizer.transform(stories)
-    y_train = np.asarray(labels)
-    logger.debug('number of examples: {}'.format(str(x_train.shape)))
-    logger.debug('number of labels: {}'.format(str(y_train.shape)))
-
-    # Train model
-    logger.debug('Training model...')
-    clf = MultinomialNB()
-    model = clf.fit(x_train, y_train)
-
-    # Cross-Validation
-    logger.debug('Cross-Validating...')
-    skf = StratifiedKFold(n_splits=3)
-    test_prec_scores = []
-    test_rec_scores = []
-    for train_index, test_index in skf.split(x_train, y_train):
-        x_train_val, x_test_val = x_train[train_index], x_train[test_index]
-        y_train_val, y_test_val = y_train[train_index], y_train[test_index]
-        clf = MultinomialNB()
-        model = clf.fit(x_train_val, y_train_val)
-
-        # get precision and recall
-        test_prec_score = precision_score(y_test_val, model.predict(x_test_val))
-        test_rec_score = recall_score(y_test_val, model.predict(x_test_val))
-
-        # add scores to lists
-        test_prec_scores.append(test_prec_score)
-        test_rec_scores.append(test_rec_score)
-
-    precision = np.mean(test_prec_scores)
-    recall = np.mean(test_rec_scores)
-    logger.debug('average test precision: {}'.format(str(precision)))
-    logger.debug('average test recall: {}'.format(str(recall)))
-
-    # Get most likely words
-    num_top_words = 20
-    probs_0 = model.feature_log_prob_[0].tolist()
-    probs_1 = model.feature_log_prob_[1].tolist()
-
-    # Map words to model probabilities
-    vocab = vectorizer.vocabulary_  # (maps terms to feature indices)
-    word_to_probs_0 = {}
-    word_to_probs_1 = {}
-    for v in vocab.keys():
-        feature_idx = vocab[v]
-        prob_0 = probs_0[feature_idx]
-        prob_1 = probs_1[feature_idx]
-        word_to_probs_0[v] = prob_0
-        word_to_probs_1[v] = prob_1
-
-    # Get most probable words
-    top_words_0 = sorted(word_to_probs_0.items(), key=lambda x: x[1], reverse=True)[:num_top_words]
-    top_words_0 = map(lambda x: x[0], top_words_0)
-    top_words_1 = sorted(word_to_probs_1.items(), key=lambda x: x[1], reverse=True)[:num_top_words]
-    top_words_1 = map(lambda x: x[0], top_words_1)
-
-    # Pickle model and vectorizer (RISK: forwards binary compatability? should we save trianing data instead?)
-    _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name)
-
-    return jsonify({'precision': precision, 'recall': recall, 'topWords': [list(top_words_0), list(top_words_1)]})
+    story_ids, labels = classifier.download_training_data(story_ids, labels, fp.name)  # removes any stories with no text
+    results = classifier.train_multinomial_naive_bayes_classifier(fp.name, labels)
+    # pickle model and vectorizer (RISK: forwards binary compatability? should we save trianing data instead?)
+    _save_model_and_vectorizer(results['model'], results['vectorizer'], topics_id, subtopic_name)
+    return jsonify({'precision': results['precision'], 'recall': results['recall'],
+                    'topWords': [list(results['top_words_0']), list(results['top_words_1'])]})
 
 
 @app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/sample', methods=['GET'])
 @flask_login.login_required
 @api_error_handler
 def classify_random_sample(topics_id, focalset_name):
-    # Grab 30 random stories from topic
-    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
-    sample_stories = user_mc.storyList(solr_query='{~ topic:'+topics_id+'}', sort='random', rows=30, sentences=True)
-
-    # Process story sentences and ids
-    logger.debug('downloading sample stories from topic...')
-    start = time.time()
+    # Grab 30 stories from topic
+    sample_stories = [s['stories_id'] for s in apicache.topic_story_list(user_mediacloud_key, topics_id, limit=30)['stories']]
+    test_stories = [base_apicache.story(TOOL_API_KEY, stories_id, text=True) for stories_id in sample_stories]
     test_stories_text = []
-    test_stories = []
-    for i, story in enumerate(sample_stories):
-        test_stories.append(story)
-        test_stories_text.append('')
-        for sentence in story['story_sentences']:
-            sent = re.sub(r'[^\w\s-]', '', sentence['sentence'])
-            sent = re.sub(r'[\s-]', ' ', sent)
-            test_stories_text[i] += (sent.lower() + ' ')
-    end = time.time()
-    logger.debug('Download time: {}'.format(str(start - end)))
-
+    for story in test_stories:
+        test_stories_text.append(classifier.clean_text(story['story_text']))
     # Get predictions on samples
     model, vectorizer = _load_model_and_vectorizer(topics_id, focalset_name)
     x_test = vectorizer.transform(test_stories_text)
     predicted_labels = model.predict(x_test).tolist()
     predicted_probs = model.predict_proba(x_test).tolist()
-
+    # return results for client to display
+    for story in test_stories:
+        del story['story_text']
     return jsonify({'sampleStories': test_stories, 'labels': predicted_labels, 'probs': predicted_probs})
