@@ -34,9 +34,9 @@ def filters_from_args(request_args):
 
 
 def arguments_required(*expected_args):
-    '''
+    """
     Handy decorator for ensuring that request params exist
-    '''
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -52,9 +52,9 @@ def arguments_required(*expected_args):
 
 
 def form_fields_required(*expected_form_fields):
-    '''
+    """
     Handy decorator for ensuring that the form has the fields you need
-    '''
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -70,11 +70,11 @@ def form_fields_required(*expected_form_fields):
 
 
 def api_error_handler(func):
-    '''
+    """
     Handy decorator that catches any exception from the Media Cloud API and
     sends it back to the browser as a nicely formatted JSON error.  The idea is
     that the client code can catch these at a low level and display error messages.
-    '''
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
