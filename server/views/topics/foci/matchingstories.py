@@ -3,7 +3,6 @@ from flask import jsonify, request
 import flask_login
 import json
 import os
-import re
 import tempfile
 import time
 import csv
