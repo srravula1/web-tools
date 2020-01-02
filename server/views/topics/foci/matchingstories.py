@@ -6,9 +6,8 @@ import os
 import re
 import tempfile
 import time
+import csv
 from werkzeug.utils import secure_filename
-import csv as pycsv
-
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -16,10 +15,11 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import precision_score, recall_score
 from sklearn.externals import joblib
 
-from server import app, base_dir, TOOL_API_KEY
+from server import app, base_dir, TOOL_API_KEY, mc
 from server.views.sources.collection import allowed_file
 from server.util.request import api_error_handler, json_error_response
 from server.auth import user_admin_mediacloud_client
+import server.views.topics.apicache as api_cache
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ MAX_DF_DEFAULT = 0.9
 
 
 def download_template():
-    # TODO
+    # TODO - download CSV with TRAINING_SET_HEADERS column names
     pass
 
 
@@ -42,7 +42,7 @@ def _parse_stories_from_csv_upload(filepath):
     acceptable_column_names = TRAINING_SET_HEADERS
 
     with open(filepath, 'rU') as f:
-        reader = pycsv.DictReader(f)
+        reader = csv.DictReader(f)
         reader.fieldnames = acceptable_column_names
         stories_ids = []
         labels = []
@@ -95,19 +95,19 @@ def _load_model_and_vectorizer(topics_id, subtopic_name):
     return model, vectorizer
 
 
-#@cache.cache_on_arguments()
-def _download_stories_text(stories_ids):
-    user_mc = user_admin_mediacloud_client(user_mc_key=TOOL_API_KEY)
-    fp = tempfile.NamedTemporaryFile(mode='w')
-    for story_id in stories_ids:
-        story_details = user_mc.story(story_id, sentences=True)
-        sentences = story_details['story_sentences']
-        for sd in sentences:
-            sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
-            sent = re.sub(r'[\s-]', ' ', sent)
-            fp.write(sent.lower() + ' ')
-        fp.write(u'\n')
-    return fp.name  # actually the path
+def _download_stories_text(story_ids, dest_path):
+    # need to use the tool client here to get raw sentences, and fetch one-by-one to ensure results appear
+    stories = [api_cache.story(TOOL_API_KEY, stories_id, sentences=True) for stories_id in story_ids]
+    #story_ids_str = " ".join([str(story_id) for story_id in story_ids])
+    #stories = api_cache.story_list(TOOL_API_KEY, "stories_id:({})".format(story_ids),
+    #                               rows=len(story_ids), sentences=True)
+    with open(dest_path, 'w') as fp:
+        for story in stories:
+            for sd in story['story_sentences']:
+                sent = re.sub(r'[^\w\s-]', '', sd['sentence'])
+                sent = re.sub(r'[\s-]', ' ', sent)
+                fp.write(sent.lower() + ' ')
+            fp.write('\n')
 
 
 @app.route('/api/topics/focal-sets/matching-stories/upload-training-set', methods=['POST'])
@@ -138,7 +138,7 @@ def upload_reference_set():
 
     if len(stories_ids) > 500:
         # TODO: determine appropriate training set limit
-        return jsonify({'status': 'Error', 'message': 'Too many stories in training set. The limit is 300.'})
+        return json_error_response('Too many stories in training set. The limit is 300.')
     else:
         time_end = time.time()
         logger.debug("upload_file: {}".format(time_end - time_start))
@@ -152,22 +152,24 @@ def upload_reference_set():
 @flask_login.login_required
 @api_error_handler
 def generate_model(topics_id):
-    subtopic_name = request.form.get('topicName')
+    subtopic_name = request.form.get('modelName')
     stories_ids = json.loads('[{}]'.format(request.form.get('ids')))
     labels = json.loads('[{}]'.format(request.form.get('labels')))
+    if len(stories_ids) != len(labels):
+        return json_error_response('Not all stories labeled ({} stories, {} labels)'.format(len(stories_ids), len(labels)))
 
     # download text of stories from story_ids list
     logger.debug('Downloading story sentences...')
     start = time.time()
-    filepath = _download_stories_text(stories_ids)
+    fp = tempfile.NamedTemporaryFile(mode='w')
+    _download_stories_text(stories_ids, fp.name)
     end = time.time()
     logger.debug('Download time: {}'.format(end - start))
 
     # Load and vectorize data
-    with open(filepath) as f:
+    with open(fp.name) as f:
         stories = f.readlines()
     logger.debug('number of stories: {}'.format(len(stories)))
-
     vectorizer = TfidfVectorizer(sublinear_tf=True, stop_words='english', min_df=MIN_DF_DEFAULT, max_df=MAX_DF_DEFAULT)
     vectorizer.fit(stories)
     x_train = vectorizer.transform(stories)
@@ -226,13 +228,10 @@ def generate_model(topics_id):
     top_words_1 = sorted(word_to_probs_1.items(), key=lambda x: x[1], reverse=True)[:num_top_words]
     top_words_1 = map(lambda x: x[0], top_words_1)
 
-    # Pickle model and vectorizer
+    # Pickle model and vectorizer (RISK: forwards binary compatability? should we save trianing data instead?)
     _save_model_and_vectorizer(model, vectorizer, topics_id, subtopic_name)
 
-    # clean up
-    os.remove(filepath)
-
-    return jsonify({'precision': precision, 'recall': recall, 'topWords': [top_words_0, top_words_1]})
+    return jsonify({'precision': precision, 'recall': recall, 'topWords': [list(top_words_0), list(top_words_1)]})
 
 
 @app.route('/api/topics/<topics_id>/focal-sets/<focalset_name>/matching-stories/sample', methods=['GET'])

@@ -32,3 +32,4 @@ src/components/explorer/results/drilldowns/WordInContextDrillDownContainer.js
 .cache-loader
 build/public/
 server/static/data/tags_in*
+server/static/data/*.pkl

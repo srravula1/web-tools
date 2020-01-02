@@ -20,9 +20,9 @@ WORD_COUNT_DOWNLOAD_COLUMNS = ['term', 'stem', 'count', 'sample_size', 'ratio']
 
 
 def topic_media_list(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Return sorted media list based on filters.
-    '''
+    """
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     merged_args = {
         'snapshots_id': snapshots_id,
@@ -39,10 +39,10 @@ def topic_media_list(user_mc_key, topics_id, **kwargs):
 
 @cache.cache_on_arguments()
 def _cached_topic_media_list_with_metadata(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_media_list instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly.
-    '''
+    """
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
     else:
@@ -51,9 +51,9 @@ def _cached_topic_media_list_with_metadata(user_mc_key, topics_id, **kwargs):
 
 
 def topic_story_count(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Return filtered story count within topic.
-    '''
+    """
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     merged_args = {
         'snapshots_id': snapshots_id,
@@ -68,10 +68,10 @@ def topic_story_count(user_mc_key, topics_id, **kwargs):
 
 @cache.cache_on_arguments()
 def _cached_topic_story_count(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_story_count instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly.
-    '''
+    """
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
     else:
@@ -84,17 +84,17 @@ def _cached_topic_story_count(user_mc_key, topics_id, **kwargs):
     return results
 
 
-def story_list(user_mc_key, q, rows):
-    return _cached_story_list(user_mc_key, q, rows)
+def story_list(user_mc_key, q, rows, **kwargs):
+    return _cached_story_list(user_mc_key, q, rows, **kwargs)
 
 
 @cache.cache_on_arguments()
-def _cached_story_list(user_mc_key, q, rows):
+def _cached_story_list(user_mc_key, q, rows, **kwargs):
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
     else:
         local_mc = user_mediacloud_client(user_mc_key)
-    return local_mc.storyList(q, rows=rows)
+    return local_mc.storyList(q, rows=rows, **kwargs)
 
 
 def topic_story_list(user_mc_key, topics_id, **kwargs):
@@ -119,10 +119,10 @@ def topic_story_list(user_mc_key, topics_id, **kwargs):
 
 @cache.cache_on_arguments()
 def _cached_topic_story_list(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_story_list instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly.
-    '''
+    """
     local_mc = base_cache.mc_client(user_mc_key)
     return local_mc.topicStoryList(topics_id, **kwargs)
 
@@ -225,10 +225,10 @@ def _cached_word2vec_google_2d_results(words):
 
 @cache.cache_on_arguments()
 def cached_topic_word_counts(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_word_counts instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly.
-    '''
+    """
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
     else:
@@ -237,9 +237,9 @@ def cached_topic_word_counts(user_mc_key, topics_id, **kwargs):
 
 
 def topic_split_story_counts(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Return setence counts over timebased on filters.
-    '''
+    """
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     timespan = topic_timespan(topics_id, snapshots_id, foci_id, timespans_id)
     merged_args = {
@@ -265,10 +265,10 @@ def topic_split_story_counts(user_mc_key, topics_id, **kwargs):
 
 @cache.cache_on_arguments()
 def _cached_topic_split_story_counts(user_mc_key, topics_id, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_split_story_counts instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly.
-    '''
+    """
     local_mc = None
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
@@ -342,11 +342,11 @@ def topic_tag_coverage(topics_id, tags_id):
 
 
 def topic_tag_counts(user_mc_key, topics_id, tag_sets_id, sample_size=None):
-    '''
+    """
     Get a breakdown of the most-used tags within a set within a single timespan.
      This supports just timespan_id and q from the request, because it has to use sentenceFieldCount,
      not a topicSentenceFieldCount method that takes filters (which doesn't exit)
-    '''
+    """
     # return [] # SUPER HACK!
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     timespan_query = "timespans_id:{}".format(timespans_id)
@@ -371,9 +371,9 @@ def _cached_topic_tag_counts(user_mc_key, topics_id, tag_sets_id, sample_size, q
 
 
 def topic_sentence_sample(user_mc_key, topics_id, sample_size=1000, **kwargs):
-    '''
+    """
     Return a sample of sentences based on the filters.
-    '''
+    """
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     merged_args = {
         'snapshots_id': snapshots_id,
@@ -387,11 +387,11 @@ def topic_sentence_sample(user_mc_key, topics_id, sample_size=1000, **kwargs):
 
 @cache.cache_on_arguments()
 def _cached_topic_sentence_sample(user_mc_key, topics_id, sample_size=1000, **kwargs):
-    '''
+    """
     Internal helper - don't call this; call topic_sentence_sample instead. This needs user_mc_key in the
     function signature to make sure the caching is keyed correctly. It includes topics_id in the method
     signature to make sure caching works reasonably.
-    '''
+    """
     local_mc = None
     if user_mc_key == TOOL_API_KEY:
         local_mc = mc
@@ -405,13 +405,13 @@ def _cached_topic_sentence_sample(user_mc_key, topics_id, sample_size=1000, **kw
 
 
 def topic_timespan(topics_id, snapshots_id, foci_id, timespans_id):
-    '''
+    """
     No timespan/single end point, so we need a helper to do it
     :param snapshots_id:
     :param timespans_id:
     :param foci_id:
     :return: info about one timespan as specified
-    '''
+    """
     timespans_list = cached_topic_timespan_list(user_mediacloud_key(), topics_id, snapshots_id, foci_id)
     matching_timespans = [t for t in timespans_list if t['timespans_id'] == int(timespans_id)]
     if len(matching_timespans) is 0:
@@ -433,10 +433,10 @@ def add_to_user_query(query_to_add):
     return "({}) AND ({})".format(q_from_request, query_to_add)
 
 
-'''
+"""
 For cross-subtopic analysis within a subtopic set, we need to identify the timespan that has the same date
 range in each subtopic within the set.  This helper does that annoying work for you.
-'''
+"""
 def matching_timespans_in_foci(topics_id, timespan_to_match, foci):
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     timespans = []
@@ -460,11 +460,25 @@ def _matching_timespan(timespan_to_match, timespans_to_search):
 
 
 def is_timespans_match(timespan1, timespan2):
-    '''
+    """
     Useful to compare two timespans from different subtopics
     :return: true if they match, false if they don't
-    '''
+    """
     match = (timespan1['start_date'] == timespan2['start_date']) \
             and (timespan1['end_date'] == timespan2['end_date']) \
             and (timespan1['period'] == timespan2['period'])
     return match
+
+
+def story(user_mc_key, stories_id, **kwargs):
+    return _story(user_mc_key, stories_id, **kwargs)
+
+
+@cache.cache_on_arguments()
+def _story(user_mc_key, stories_id, **kwargs):
+    if user_mc_key == TOOL_API_KEY:
+        local_mc = mc
+    else:
+        # important for this to be an admin client in case kwargs has admin-restricted items
+        local_mc = user_admin_mediacloud_client()
+    return local_mc.story(stories_id, **kwargs)

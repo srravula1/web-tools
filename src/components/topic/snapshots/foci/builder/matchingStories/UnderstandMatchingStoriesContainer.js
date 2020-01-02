@@ -16,7 +16,7 @@ const formSelector = formValueSelector('snapshotFocus');
 const localMessages = {
   title: { id: 'focus.create.understand.title', defaultMessage: 'Understanding the Model' },
   about: { id: 'focus.create.edit.about',
-    defaultMessage: 'Stories including these words are likely to be classified as your topic:' },
+    defaultMessage: 'Stories including these words are likely to be classified as your subtopic:' },
   errorNoTopicName: { id: 'focalTechnique.matchingStories.error', defaultMessage: 'You need to specify a classification name.' },
   directions: { id: 'focalTechnique.matchingStories.directions', defaultMessage: 'Upload training data' },
   directionsDetails: { id: 'focalTechnique.matchingStories.directionsDetails', defaultMessage: 'Classify at least 25 stories manually to train our machine learning model. You can use this template to format the data' },
@@ -59,7 +59,7 @@ const UnderstandMatchingStoriesContainer = (props) => {
             <Row start="lg">
               <Col lg={12}>
                 <div>
-                  <h3> {'Stories including these words are likely to NOT be classified as your topic: '} </h3>
+                  <h3> {'Stories including these words are likely to NOT be classified as your subtopic: '} </h3>
                   <div className="words-container">
                     <table>
                       <tbody>
@@ -151,7 +151,7 @@ const reduxFormConfig = {
   validate,
 };
 
-const fetchAsyncData = (dispatch, { topicId, topicName, ids, labels }) => dispatch(generateModel(topicId, { topicName, ids, labels }));
+const fetchAsyncData = (dispatch, { topicId, modelName, storiesIds, labels }) => dispatch(generateModel(topicId, { modelName, ids: storiesIds, labels }));
 
 export default
 injectIntl(

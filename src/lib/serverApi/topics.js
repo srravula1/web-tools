@@ -398,7 +398,7 @@ export function matchingStoriesUploadTrainingSet(params) {
 }
 
 export function matchingStoriesGenerateModel(topicId, params) {
-  const acceptedParams = acceptParams(params, ['topicName', 'ids', 'labels']);
+  const acceptedParams = acceptParams(params, ['modelName', 'ids', 'labels']);
   return createPostingApiPromise(`/api/topics/${topicId}/focal-sets/matching-stories/generate-model`, acceptedParams);
 }
 

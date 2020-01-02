@@ -8,7 +8,6 @@ import ValidateMatchingStoriesContainer from './ValidateMatchingStoriesContainer
 import { goToMatchingStoriesConfigStep } from '../../../../../../actions/topicActions';
 
 class MatchingStoriesConfigureWizard extends React.Component {
-
   componentWillMount = () => {
     const { startStep, goToStep } = this.props;
     goToStep(startStep || 0);
@@ -25,7 +24,7 @@ class MatchingStoriesConfigureWizard extends React.Component {
   }
 
   render() {
-    const { topicId, initialValues, currentStep } = this.props;
+    const { topicId, initialValues, currentStep, location } = this.props;
     const steps = [
       EditMatchingStoriesContainer,
       UnderstandMatchingStoriesContainer,
@@ -38,7 +37,6 @@ class MatchingStoriesConfigureWizard extends React.Component {
       </div>
     );
   }
-
 }
 
 MatchingStoriesConfigureWizard.propTypes = {
@@ -68,8 +66,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default
-  injectIntl(
-    connect(mapStateToProps, mapDispatchToProps)(
-      MatchingStoriesConfigureWizard
-    )
-  );
+injectIntl(
+  connect(mapStateToProps, mapDispatchToProps)(
+    MatchingStoriesConfigureWizard
+  )
+);
