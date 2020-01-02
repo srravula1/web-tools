@@ -46,7 +46,7 @@ def story_info(stories_id):
 @api_error_handler
 def story_raw(stories_id):
     # only let admins see this
-    text = apicache.story_raw_1st_download(user_mediacloud_key(), stories_id)
+    text = apicache.story(user_mediacloud_key(), stories_id, raw_1st_download=True)
     return text
 
 
@@ -212,7 +212,7 @@ def predict_news_labels(story_text):
 def story_top_image(stories_id):
     story = mc.story(stories_id)
     # use the tool key so anyone can see these images
-    story_html = apicache.story_raw_1st_download(TOOL_API_KEY, stories_id)
+    story_html = apicache.story(TOOL_API_KEY, stories_id, raw_1st_download=True)
     article = newspaper.Article(url=story['url'])
     article.set_html(story_html)
     try:

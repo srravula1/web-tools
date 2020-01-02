@@ -67,11 +67,15 @@ def _cached_story_count(api_key, q, fq):
     return local_client.storyCount(solr_query=q, solr_filter=fq)
 
 
-def story_raw_1st_download(api_key, stories_id):
-    return _cached_story_raw_1st_download(api_key, stories_id)
+def story(user_mc_key, stories_id, **kwargs):
+    return _cached_story(user_mc_key, stories_id, **kwargs)
 
 
 @cache.cache_on_arguments()
-def _cached_story_raw_1st_download(api_key, stories_id):
-    story = mc.story(stories_id, raw_1st_download=True)
-    return story['raw_first_download_file']
+def _cached_story(user_mc_key, stories_id, **kwargs):
+    if user_mc_key == TOOL_API_KEY:
+        local_mc = mc
+    else:
+        # important for this to be an admin client in case kwargs has admin-restricted items
+        local_mc = user_admin_mediacloud_client()
+    return local_mc.story(stories_id, **kwargs)
