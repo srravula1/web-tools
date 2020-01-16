@@ -293,11 +293,9 @@ QueryForm.propTypes = {
   // from context
   intl: PropTypes.object.isRequired,
   renderTextField: PropTypes.func.isRequired,
-  renderSelect: PropTypes.func.isRequired,
   renderTextFieldWithFocus: PropTypes.func.isRequired,
   searchNickname: PropTypes.string.isRequired,
   savedSearches: PropTypes.array,
-
   // from parent
   selected: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,

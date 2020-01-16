@@ -1,11 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { injectIntl } from 'react-intl';
-import { reduxForm, FieldArray, Field, propTypes } from 'redux-form';
+import { FieldArray, Field } from 'redux-form';
 import withIntlForm from '../hocs/IntlForm';
 import OpenWebMediaItem from '../OpenWebMediaItem';
 
-const renderCollectionSelector = ({ allowRemoval, fields, meta, onDelete }) => (
+const renderCollectionSelector = ({ fields, meta, onDelete, allowRemoval }) => (
   <div>
     {fields.map((name, index) => (
       <Field
@@ -38,22 +37,17 @@ renderCollectionSelector.propTypes = {
   onDelete: PropTypes.func,
 };
 
-const OpenWebMediaFieldArray = (props) => {
-  const { fieldName, initialValues, allowRemoval, onDelete } = props;
-  return (
-    <div className="explorer-source-collection-form">
-      <FieldArray
-        form={propTypes.form}
-        name={fieldName}
-        validate={propTypes.validate}
-        allowRemoval={allowRemoval}
-        component={renderCollectionSelector}
-        initialValues={initialValues}
-        onDelete={onDelete}
-      />
-    </div>
-  );
-};
+const OpenWebMediaFieldArray = ({ fieldName, initialValues, allowRemoval, onDelete }) => (
+  <div className="open-web-field-array">
+    <FieldArray
+      name={fieldName}
+      allowRemoval={allowRemoval}
+      component={renderCollectionSelector}
+      initialValues={initialValues}
+      onDelete={onDelete}
+    />
+  </div>
+);
 
 OpenWebMediaFieldArray.propTypes = {
   // from parent
@@ -61,16 +55,12 @@ OpenWebMediaFieldArray.propTypes = {
   initialValues: PropTypes.object,
   selected: PropTypes.object,
   allowRemoval: PropTypes.bool,
-  fieldName: PropTypes.string,
+  fieldName: PropTypes.string.isRequired,
   // valid: PropTypes.bool,  not using - but this is helpful to determine if validation is getting
   onDelete: PropTypes.func,
 };
 
 export default
-injectIntl(
-  withIntlForm(
-    reduxForm({ propTypes })(
-      OpenWebMediaFieldArray
-    )
-  )
+withIntlForm(
+  OpenWebMediaFieldArray
 );

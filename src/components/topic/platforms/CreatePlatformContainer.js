@@ -29,7 +29,6 @@ const CreatePlatformContainer = (props) => {
   return (
     <PlatformWizard
       topicId={topicInfo.topics_id}
-      startStep={0}
       currentStep={0}
       initialValues={initAndTopicInfoValues}
       location={location}

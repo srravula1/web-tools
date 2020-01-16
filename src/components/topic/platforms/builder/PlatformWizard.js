@@ -20,19 +20,14 @@ const localMessages = {
 };
 
 class PlatformWizard extends React.Component {
-  componentDidMount() {
-    const { startStep, goToStep } = this.props;
-    goToStep(startStep || 0);
-  }
-
   shouldComponentUpdate = (nextProps) => {
     const { currentStep } = this.props;
     return currentStep !== nextProps.currentStep;
   }
 
   componentWillUnmount = () => {
-    const { handleUnmount } = this.props;
-    handleUnmount();
+    const { currentStep, handleUnmount } = this.props;
+    handleUnmount(currentStep);
   }
 
   render() {
@@ -42,7 +37,14 @@ class PlatformWizard extends React.Component {
       Platform2ValidateContainer,
       Platform3ConfirmContainer,
     ];
-    const initAndTopicInfoValues = { ...initialValues, ...topicInfo, query: topicInfo.solr_seed_query };
+    const initAndTopicInfoValues = {
+      ...initialValues,
+      ...topicInfo,
+      query: topicInfo.solr_seed_query,
+      matchType: 'all',
+      matches: [''],
+      negations: [''],
+    };
     const CurrentStepComponent = steps[currentStep];
     return (
       <div className="platform-builder-wizard">
@@ -77,7 +79,6 @@ PlatformWizard.propTypes = {
   topicId: PropTypes.number.isRequired,
   topicInfo: PropTypes.object.isRequired,
   initialValues: PropTypes.object,
-  startStep: PropTypes.number,
   location: PropTypes.object,
   onDone: PropTypes.func.isRequired,
   // from state
@@ -97,8 +98,8 @@ const mapDispatchToProps = dispatch => ({
   goToStep: (step) => {
     dispatch(goToCreatePlatformStep(step));
   },
-  handleUnmount: () => {
-    dispatch(goToCreatePlatformStep(0)); // reset for next time
+  handleUnmount: (currentStep) => {
+    if (currentStep !== 0) dispatch(goToCreatePlatformStep(0)); // reset for next time
   },
 });
 

@@ -46,8 +46,6 @@ UserForm.propTypes = {
   initialValues: PropTypes.object,
   // from context
   intl: PropTypes.object.isRequired,
-  renderTextField: PropTypes.func.isRequired,
-  renderSelect: PropTypes.func.isRequired,
   collections: PropTypes.array,
   // from form helper
   handleSubmit: PropTypes.func,

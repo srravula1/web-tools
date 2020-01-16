@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'react-router/lib/Link';
 import IconButton from '@material-ui/core/IconButton';
 import { injectIntl } from 'react-intl';
+import slugify from 'slugify';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -17,9 +18,6 @@ import PreviousIcon from '@material-ui/icons/SkipPrevious';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import PersonIcon from '@material-ui/icons/Person';
-
-import slugify from 'slugify';
-import messages from '../../resources/messages';
 import ExploreIcon from './icons/ExploreIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import DeleteIcon from './icons/DeleteIcon';
@@ -37,6 +35,7 @@ import MoreOptionsIcon from './icons/MoreOptionsIcon';
 import ResetIcon from './icons/ResetIcon';
 import FilterIcon from './icons/FilterIcon';
 import { getBrandDarkColor, getBrandDarkerColor } from '../../styles/colors';
+import messages from '../../resources/messages';
 
 /**
  * The wrapper for our custom icons.  The idea is that you define all the SVG icons in individual

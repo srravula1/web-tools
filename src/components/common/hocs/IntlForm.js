@@ -104,7 +104,7 @@ function withIntlForm(Component) {
             {...input}
             onChange={event => input.onChange(event.target.value)}
             {...intlCustom}
-            fullWidth
+            fullWidth={fullWidth}
           >
             {children}
           </Select>
@@ -140,7 +140,6 @@ function withIntlForm(Component) {
         renderCheckbox: this.renderCheckbox,
         renderSelect: this.renderSelect,
         renderTextFieldWithFocus: this.renderTextFieldWithFocus,
-        renderNewAutoComplete: this.renderNewAutoComplete,
         renderAutocomplete: this.renderAutocomplete,
         renderAsyncAutocomplete: this.renderAsyncAutocomplete,
       };
