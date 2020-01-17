@@ -14,7 +14,8 @@ import StoryNytThemesContainer from '../../../common/story/StoryNytThemesContain
 import messages from '../../../../resources/messages';
 import { urlToSource } from '../../../../lib/urlUtil';
 import { TAG_SET_NYT_THEMES } from '../../../../lib/tagUtil';
-import { trimToMaxLength, extractWordsFromQuery } from '../../../../lib/stringUtil';
+import { trimToMaxLength } from '../../../../lib/stringUtil';
+import { extractWordsFromQuery } from '../../../../lib/querySyntaxUtil';
 import { storyPubDateToTimestamp } from '../../../../lib/dateUtil';
 import Permissioned from '../../../common/Permissioned';
 import { PERMISSION_ADMIN } from '../../../../lib/auth';
