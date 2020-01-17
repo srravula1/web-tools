@@ -16,7 +16,7 @@ const renderKeywords = ({ fields, meta, onDelete, renderTextField, conjunction, 
             component={(info) => (
               <>
                 <span className="delete">
-                  {(fields.length > 1) && (!isLastOne) && (
+                  {(fields.length > 1) && (
                     <DeleteButton onClick={(evt) => {
                       fields.remove(index);
                       if (onDelete) onDelete(index, info.input.value, evt);
@@ -29,7 +29,6 @@ const renderKeywords = ({ fields, meta, onDelete, renderTextField, conjunction, 
                     name={name}
                     component={renderTextField}
                     fullWidth
-                    variant="outlined"
                   />
                 </span>
                 {!isLastOne && <span className="conjunction">{intlIfObject(formatMessage, conjunction)}</span>}
@@ -51,7 +50,7 @@ renderKeywords.propTypes = {
   validate: PropTypes.func,
   onDelete: PropTypes.func,
   formatMessage: PropTypes.func,
-  conjunction: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  conjunction: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   // from compositional chain
   renderTextField: PropTypes.func.isRequired,
 };
@@ -74,7 +73,7 @@ QueryTermFieldArray.propTypes = {
   initialValues: PropTypes.object,
   fieldName: PropTypes.string.isRequired,
   onDelete: PropTypes.func,
-  conjunction: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  conjunction: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   // from compositional chain
   intl: PropTypes.object.isRequired,
 };

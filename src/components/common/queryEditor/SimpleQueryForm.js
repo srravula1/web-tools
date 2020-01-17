@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage, FormattedHTMLMessage, injectIntl } from 'react-intl';
-import { reduxForm, Field } from 'redux-form';
+import { Field } from 'redux-form';
 import { Row, Col } from 'react-flexbox-grid/lib';
 import MenuItem from '@material-ui/core/MenuItem';
 import QueryTermFieldArray from './QueryTermFieldArray';
@@ -13,7 +13,8 @@ import messages from '../../../resources/messages';
 const localMessages = {
   advancedModeTitle: { id: 'simpleQuery.form.confirm.title', defaultMessage: 'Switch to Advanced Mode?' },
   advancedModeText: { id: 'simpleQuery.form.confirm.text', defaultMessage: 'Switching to advanced mode will let you edit this query text directly. You will not be able to switch back to simple mode afterwards. Are you sure you want to switch modes?' },
-  matchConjunction: { id: 'simpleQuery.form.matchConjunction', defaultMessage: 'AND' },
+  matchConjunctionAll: { id: 'simpleQuery.form.matchConjunction.all', defaultMessage: 'AND' },
+  matchConjunctionAny: { id: 'simpleQuery.form.matchConjunction.any', defaultMessage: 'OR' },
   matchTitle1: { id: 'simpleQuery.form.match.title1', defaultMessage: 'Match' },
   matchTitle2: { id: 'simpleQuery.form.match.title2', defaultMessage: 'of these phrases:' },
   negationConjunction: { id: 'simpleQuery.form.negationConjunction', defaultMessage: 'AND NOT' },
@@ -68,13 +69,12 @@ class SimpleQueryForm extends React.Component {
               <h3><FormattedHTMLMessage {...localMessages.negationTitle} /></h3>
               <QueryTermFieldArray
                 fieldName="negations"
-                form="platform"
                 conjunction={localMessages.negationConjunction}
               />
             </div>
           </Col>
           <Col lg={4}>
-            <QueryPreview onAdvancedModeRequest={() => { this.state.open = true; }} />
+            <QueryPreview onAdvancedModeRequest={() => this.setState({ open: true })} />
           </Col>
         </Row>
         <ConfirmationDialog
@@ -97,15 +97,9 @@ SimpleQueryForm.propTypes = {
   renderSelect: PropTypes.func.isRequired,
 };
 
-const reduxFormConfig = {
-  form: 'platform', // make sure this matches the sub-components and other wizard steps
-};
-
 export default
 injectIntl(
   withIntlForm(
-    reduxForm(reduxFormConfig)(
-      SimpleQueryForm
-    )
+    SimpleQueryForm
   )
 );

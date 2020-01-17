@@ -19,6 +19,8 @@
   .query-term-list {
 
     .query-term {
+      margin-bottom: 10px;
+
       .MuiFormControl-marginNormal {
         margin: 0px;
       }
@@ -30,6 +32,7 @@
       }
       .term {
         display: inline-block;
+        width: 250px;
       }
       .conjunction {
         display: inline-block;
@@ -49,5 +52,14 @@
 
   }
 
+  .query-preview {
+    padding-top: 8px;
+    code {
+      display: block;
+      margin: 14px 0px;
+      padding: 10px;
+    }
+
+  }
 
 }

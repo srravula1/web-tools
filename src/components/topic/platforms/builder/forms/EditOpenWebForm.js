@@ -20,7 +20,8 @@ class EditOpenWebForm extends React.Component {
       <>
         {this.state.inSimpleMode && (
           <SimpleQueryForm
-            onAdvancedModeRequest={() => {
+            onAdvancedModeRequest={(generatedQueryString) => {
+              onFormChange('query', generatedQueryString);
               this.setState({ inSimpleMode: false });
             }}
           />
@@ -68,8 +69,6 @@ EditOpenWebForm.propTypes = {
   // from parent
   initialValues: PropTypes.object,
   onEnterKey: PropTypes.func,
-  // from state
-  change: PropTypes.func.isRequired,
   // from dispatch
   onFormChange: PropTypes.func.isRequired,
   // from compositional helper
