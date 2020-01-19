@@ -6,6 +6,7 @@ import { Row, Col } from 'react-flexbox-grid/lib';
 import withIntlForm from '../../../../common/hocs/IntlForm';
 import messages from '../../../../../resources/messages';
 import MediaPickerDialog from '../../../../common/mediaPicker/MediaPickerDialog';
+import QueryHelpDialog from '../../../../common/help/QueryHelpDialog';
 import OpenWebMediaFieldArray from '../../../../common/form/OpenWebMediaFieldArray';
 import SimpleQueryForm from '../../../../common/queryEditor/SimpleQueryForm';
 
@@ -15,7 +16,7 @@ class EditOpenWebForm extends React.Component {
   };
 
   render() {
-    const { initialValues, renderTextField, onEnterKey, onFormChange } = this.props;
+    const { initialValues, renderSolrTextField, onEnterKey, onFormChange, intl } = this.props;
     return (
       <>
         {this.state.inSimpleMode && (
@@ -32,13 +33,17 @@ class EditOpenWebForm extends React.Component {
               <label htmlFor="query"><FormattedMessage {...messages.query} /></label>
               <Field
                 name="query"
-                component={renderTextField}
-                fullWidth
+                component={renderSolrTextField}
                 multiline
-                rows="3"
+                rows={2}
+                rowsMax={4}
+                fullWidth
                 variant="outlined"
                 onKeyDown={onEnterKey}
               />
+              <small>
+                <b><QueryHelpDialog trigger={intl.formatMessage(messages.queryHelpLink)} /></b>
+              </small>
             </Col>
           )}
           <Col lg={6}>
@@ -73,7 +78,7 @@ EditOpenWebForm.propTypes = {
   onFormChange: PropTypes.func.isRequired,
   // from compositional helper
   intl: PropTypes.object.isRequired,
-  renderTextField: PropTypes.func.isRequired,
+  renderSolrTextField: PropTypes.func.isRequired,
 };
 
 export default

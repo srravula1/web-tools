@@ -17,7 +17,7 @@ import { TOPIC_FORM_MODE_CREATE, TOPIC_FORM_MODE_EDIT } from './TopicForm';
 import SeedQuerySummary from '../versions/SeedQuerySummary';
 import Permissioned from '../../common/Permissioned';
 import { PERMISSION_ADMIN } from '../../../lib/auth';
-import { formatTopicPreviewQuery } from '../../util/topicUtil';
+import { formatTopicPreviewQuery, topicQueryAsString } from '../../util/topicUtil';
 
 const localMessages = {
   name: { id: 'topic.create.confirm.name', defaultMessage: 'Name' },
@@ -216,7 +216,7 @@ const formValuesForSubmission = (values) => {
     ...queryInfo,
     name: values.name,
     description: values.description,
-    solr_seed_query: queryInfo.q,
+    solr_seed_query: topicQueryAsString(queryInfo.q),
     max_iterations: values.max_iterations,
     ch_monitor_id: values.ch_monitor_id === undefined ? '' : values.ch_monitor_id,
     is_public: values.is_public ? 1 : 0,

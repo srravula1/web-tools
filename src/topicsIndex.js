@@ -11,7 +11,7 @@ import initializeApp from './index';
 
 if (!doNotTrack(false)) ReactGA.initialize('UA-60744513-7');
 
-setVersion('3.12.23');
+setVersion('3.13.2');
 
 setAppName(APP_TOPIC_MAPPER);
 

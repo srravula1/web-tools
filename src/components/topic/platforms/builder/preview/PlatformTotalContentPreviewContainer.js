@@ -7,6 +7,7 @@ import withAsyncData from '../../../../common/hocs/AsyncDataContainer';
 import withDescription from '../../../../common/hocs/DescribedDataCard';
 import { fetchStoryCountsByPlatformQuery } from '../../../../../actions/topicActions';
 import StatBar from '../../../../common/statbar/StatBar';
+import { topicQueryAsString } from '../../../../util/topicUtil';
 
 const formSelector = formValueSelector('platform');
 
@@ -54,7 +55,7 @@ const fetchAsyncData = (dispatch, { topic, formValues, selectedPlatform, formatP
   // call the fetcher the parent passed in to fetch the data we want to show
   dispatch(fetchStoryCountsByPlatformQuery(topic.topics_id, {
     platform_type: selectedPlatform.platform,
-    platform_query: formValues.query,
+    platform_query: topicQueryAsString(formValues.query),
     platform_source: selectedPlatform.source,
     platform_channel: formatPlatformChannelData ? JSON.stringify(formatPlatformChannelData(formValues)) : JSON.stringify(formValues),
     start_date: topic.start_date,

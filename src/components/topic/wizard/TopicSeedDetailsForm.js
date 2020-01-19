@@ -51,8 +51,6 @@ TopicSeedDetailsForm.propTypes = {
   // from compositional chain
   intl: PropTypes.object.isRequired,
   renderTextField: PropTypes.func.isRequired,
-  renderCheckbox: PropTypes.func.isRequired,
-  renderSelect: PropTypes.func.isRequired,
   // from parent
   initialValues: PropTypes.object,
 };

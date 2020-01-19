@@ -159,6 +159,7 @@ def concatenate_query_for_solr(solr_seed_query, media_ids, tags_ids, custom_ids=
         if len(media_ids) > 0:
             media_ids = media_ids.split(',') if isinstance(media_ids, str) else media_ids
             query_media_ids = " ".join([str(m) for m in media_ids])
+            query_media_ids = re.sub(r'\[*\]*', '', str(query_media_ids))
             query_media_ids = " media_id:({})".format(query_media_ids)
             query += '('+query_media_ids+')'
 
@@ -170,6 +171,7 @@ def concatenate_query_for_solr(solr_seed_query, media_ids, tags_ids, custom_ids=
         if len(tags_ids) > 0:
             tags_ids = tags_ids.split(',') if isinstance(tags_ids, str) else tags_ids
             query_tags_ids = " ".join([str(t) for t in tags_ids])
+            query_tags_ids = re.sub(r'\[*\]*', '', str(query_tags_ids))
             query_tags_ids = " tags_id_media:({})".format(query_tags_ids)
             if len(custom_ids) == 0:
                 query += '('+query_tags_ids+')'

@@ -1,6 +1,96 @@
 {
   "releases": [
     {
+      "date": "2020-01-19",
+      "version": "v3.13.3",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fixed",
+          "note": "Editing multiple queries works again."
+        }
+      ]
+    },
+    {
+      "date": "2020-01-17",
+      "version": "v3.13.2",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fixed",
+          "note": "Topic creation previews are accurate again."
+        },
+        {
+          "apps": [ "explorer" ],
+          "type": "Fixed",
+          "note": "Clicking on attention chart in Explorer works again."
+        }
+      ]
+    },
+    {
+      "date": "2020-01-16",
+      "version": "v3.13.1",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Media sources subtopic now available."
+        },
+        {
+          "apps": [ "explorer" ],
+          "type": "Fixed",
+          "note": "Query items do not collapse incorrectly"
+        },
+        {
+          "apps": [ "explorer" ],
+          "type": "Fixed",
+          "note": "Can copy query to all queries"
+        }
+      ]
+    },
+    {
+      "date": "2020-01-09",
+      "version": "v3.13.0",
+      "notes": [
+        {
+          "apps": [ "topics", "explorer" ],
+          "type": "New",
+          "note": "Solr syntax highlighting in Explorer editor and Topic seed query text area."
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Drill-down and top-story label now available on attention chart"
+        },
+        {
+          "apps": [ "topics", "tools", "sources", "explorer" ],
+          "type": "New",
+          "note": "Updated JS libraries"
+        },
+        {
+          "apps": [ "topics", "tools", "sources", "explorer" ],
+          "type": "New",
+          "note": "Updated Highcharts"
+        },
+        {
+          "apps": [ "topics", "tools", "sources", "explorer" ],
+          "type": "New",
+          "note": "Admin: release notes validation"
+        }
+      ]
+    },
+    {
+      "date": "2020-01-06",
+      "version": "v3.12.24",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fixed",
+          "note": "Download for entities and organizations works again"
+        }
+      ]
+    },
+    {
       "date": "2020-01-02",
       "version": "v3.12.23",
       "notes": [

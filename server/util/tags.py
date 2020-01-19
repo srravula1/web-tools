@@ -162,7 +162,7 @@ def tag_set_with_tags(mc_api_key, tag_sets_id, only_public_tags=False, use_file_
     all_tags = []
     last_tags_id = 0
     while more_tags:
-        tags = _cached_tag_page(tag_set['tag_sets_id'], last_tags_id, 100, only_public_tags)
+        tags = _cached_tag_page(mc_api_key, tag_set['tag_sets_id'], last_tags_id, 100, only_public_tags)
         all_tags = all_tags + tags
         if len(tags) > 0:
             last_tags_id = tags[-1]['tags_id']
@@ -182,9 +182,9 @@ def tag_set_with_tags(mc_api_key, tag_sets_id, only_public_tags=False, use_file_
 
 
 @cache.cache_on_arguments()
-def _cached_tag_page(tag_sets_id, last_tags_id, rows, public_only):
+def _cached_tag_page(mc_api_key, tag_sets_id, last_tags_id, rows, public_only):
     # user agnositic here because the list of tags in a collection only changes for users based on public_only
-    local_mc = user_mediacloud_client()
+    local_mc = user_mediacloud_client(mc_api_key)
     tag_list = local_mc.tagList(tag_sets_id=tag_sets_id, last_tags_id=last_tags_id, rows=rows, public_only=public_only)
     return tag_list
 

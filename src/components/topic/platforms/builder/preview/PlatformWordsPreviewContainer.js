@@ -9,6 +9,7 @@ import OrderedWordCloud from '../../../../vis/OrderedWordCloud';
 import DataCard from '../../../../common/DataCard';
 import { fetchWordsByPlatformQuery } from '../../../../../actions/topicActions';
 import messages from '../../../../../resources/messages';
+import { topicQueryAsString } from '../../../../util/topicUtil';
 
 const localMessages = {
   descriptionIntro: { id: 'topic.summary.words.help.into',
@@ -58,7 +59,7 @@ const fetchAsyncData = (dispatch, { topic, formValues, selectedPlatform, formatP
   // call the fetcher the parent passed in to fetch the data we want to show
   dispatch(fetchWordsByPlatformQuery(topic.topics_id, {
     platform_type: selectedPlatform.platform,
-    platform_query: formValues.query,
+    platform_query: topicQueryAsString(formValues.query),
     platform_source: selectedPlatform.source,
     platform_channel: formatPlatformChannelData ? JSON.stringify(formatPlatformChannelData(formValues)) : JSON.stringify(formValues),
     start_date: topic.start_date,

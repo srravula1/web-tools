@@ -8,7 +8,7 @@ import PlatformWizard from './builder/PlatformWizard';
 import withAsyncData from '../../common/hocs/AsyncDataContainer';
 import { topicUpdatePlatform, setTopicNeedsNewSnapshot, selectPlatform } from '../../../actions/topicActions';
 import { updateFeedback } from '../../../actions/appActions';
-import { platformChannelDataFormatter } from '../../util/topicUtil';
+import { platformChannelDataFormatter, topicQueryAsString } from '../../util/topicUtil';
 
 const localMessages = {
   platformSaved: { id: 'focus.edit.saved', defaultMessage: 'We saved your platform.' },
@@ -67,7 +67,7 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     const formatPlatformChannelData = platformChannelDataFormatter(formValues.platform);
     const infoForQuery = {
       platform_type: formValues.platform,
-      platform_query: formValues.query,
+      platform_query: topicQueryAsString(formValues.query),
       platform_source: formValues.source,
       platform_channel: formatPlatformChannelData ? JSON.stringify(formatPlatformChannelData(formValues)) : JSON.stringify(formValues),
       start_date: topicInfo.start_date,

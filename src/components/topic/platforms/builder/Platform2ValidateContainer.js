@@ -13,7 +13,7 @@ import withAsyncData from '../../../common/hocs/AsyncDataContainer';
 import AppButton from '../../../common/AppButton';
 import StoryFeedbackRow from '../../../common/StoryFeedbackRow';
 import { goToCreatePlatformStep, fetchStoriesByPlatformQuery } from '../../../../actions/topicActions';
-import { platformChannelDataFormatter } from '../../../util/topicUtil';
+import { platformChannelDataFormatter, topicQueryAsString } from '../../../util/topicUtil';
 
 const VALIDATION_CUTOFF = 0.9;
 const formSelector = formValueSelector('platform');
@@ -195,7 +195,7 @@ const fetchAsyncData = (dispatch, { topic, formValues, selectedPlatform }) => {
   const formatPlatformChannelData = platformChannelDataFormatter(selectedPlatform.platform);
   return dispatch(fetchStoriesByPlatformQuery(topic.topics_id, {
     platform_type: selectedPlatform.platform,
-    platform_query: formValues.query,
+    platform_query: topicQueryAsString(formValues.query),
     platform_source: selectedPlatform.source,
     platform_channel: formatPlatformChannelData ? JSON.stringify(formatPlatformChannelData(formValues)) : JSON.stringify(formValues),
     start_date: topic.start_date,

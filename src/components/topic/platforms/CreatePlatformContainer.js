@@ -7,7 +7,7 @@ import PlatformWizard from './builder/PlatformWizard';
 import { topicCreatePlatform, setTopicNeedsNewSnapshot } from '../../../actions/topicActions';
 // import { LEVEL_ERROR } from '../../common/Notice';
 import { updateFeedback } from '../../../actions/appActions';
-import { platformChannelDataFormatter } from '../../util/topicUtil';
+import { platformChannelDataFormatter, topicQueryAsString } from '../../util/topicUtil';
 
 const DEFAULT_SELECTED_NUMBER = 5;
 
@@ -61,7 +61,7 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     const formatPlatformChannelData = platformChannelDataFormatter(formValues.selectedPlatform.platform);
     const infoForQuery = {
       platform_type: formValues.selectedPlatform.platform,
-      platform_query: formValues.query,
+      platform_query: topicQueryAsString(formValues.query),
       platform_source: formValues.selectedPlatform.source,
       platform_channel: formatPlatformChannelData ? JSON.stringify(formatPlatformChannelData(formValues)) : JSON.stringify(formValues),
       start_date: topicInfo.start_date,

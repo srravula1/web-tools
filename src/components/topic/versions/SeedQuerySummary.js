@@ -3,6 +3,7 @@ import React from 'react';
 import { FormattedHTMLMessage, injectIntl } from 'react-intl';
 import messages from '../../../resources/messages';
 import OpenWebMediaItem from '../../common/OpenWebMediaItem';
+import { topicQueryAsString } from '../../util/topicUtil';
 
 const localMessages = {
   title: { id: 'topic.info.title', defaultMessage: 'Version {versionNumber}: Seed Query' },
@@ -35,7 +36,7 @@ const SeedQuerySummary = ({ seedQueryCount, topic, snapshot, intl, faded }) => {
       </p>
       <p>
         <b><FormattedHTMLMessage {...messages.topicQueryProp} /></b>
-        <code>{topic.solr_seed_query}</code>
+        <code>{topicQueryAsString(topic.solr_seed_query)}</code>
       </p>
       <p>
         <b><FormattedHTMLMessage {...localMessages.dates} /></b>

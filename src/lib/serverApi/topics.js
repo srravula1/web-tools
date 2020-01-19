@@ -21,7 +21,7 @@ export function topicSummary(topicId) {
 }
 
 export function topicTopStories(topicId, params) {
-  const acceptedParams = acceptParams(params, ['snapshotId', 'timespanId', 'focusId', 'sort', 'limit', 'q', 'linkId']);
+  const acceptedParams = acceptParams(params, ['snapshotId', 'timespanId', 'focusId', 'sort', 'limit', 'q', 'linkId', 'sources[]', 'collections[]']);
   return createApiPromise(`/api/topics/${topicId}/stories`, acceptedParams);
 }
 
@@ -127,8 +127,7 @@ export function updateOrCreateFocusDefinition(topicId, params) {
   const acceptedParams = acceptParams(params, [
     'foci_id',
     'focalSetName', 'focalSetDescription', 'focalTechnique',
-    'focusName', 'focusDescription', 'focalSetDefinitionId', 'keywords',
-  ]);
+    'focusName', 'focusDescription', 'focalSetDefinitionId', 'keywords', 'sources[]', 'collections[]']);
   return createPostingApiPromise(`/api/topics/${topicId}/focus-definitions/update-or-create`, acceptedParams);
 }
 

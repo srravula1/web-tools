@@ -1,6 +1,7 @@
 import slugify from 'slugify';
 import { serializeSearchTags } from '../../lib/explorerUtil';
 import { PLATFORM_OPEN_WEB, PLATFORM_REDDIT, PLATFORM_TWITTER } from '../../lib/platformTypes';
+import { queryAsString } from '../../lib/stringUtil';
 
 export const topicDownloadFilename = (topicName, filters) => (
   `${slugify(topicName)}-${filters.snapshotId}-${filters.timespanId}-${filters.focusId}`
@@ -43,8 +44,12 @@ export const formatTopicOpenWebSourcesForQuery = (topicSourcesAndCollections) =>
   };
 };
 
+// handle string or codemirror object
+export const topicQueryAsString = queryAsString;
+
+// while creating a topic, this can format the under-construction topic params propertly for a preview request
 export const formatTopicPreviewQuery = (topicQuery) => ({
-  q: topicQuery.solr_seed_query,
+  q: topicQueryAsString(topicQuery.solr_seed_query),
   start_date: topicQuery.start_date,
   end_date: topicQuery.end_date,
   ...formatTopicOpenWebSourcesForQuery(topicQuery.sourcesAndCollections),

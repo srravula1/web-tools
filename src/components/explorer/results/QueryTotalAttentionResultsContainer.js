@@ -193,10 +193,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
     return (
       <ActionMenu className="border-button" actionTextMsg={messages.downloadOptions}>
-        {ownProps.queries.map(q => (
+        {ownProps.queries.map((q, idx) => (
           <MenuItem
             className="action-icon-menu-item"
             onClick={() => postToDownloadUrl(DOWNLOAD_PATH, q)}
+            key={idx}
           >
             <ListItemText>
               <FormattedMessage {...localMessages.downloadCsv} values={{ name: q.label }} />
