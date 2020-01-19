@@ -24,7 +24,9 @@ const QueryPreview = ({ onAdvancedModeRequest, matches, negations, matchType, pl
 };
 
 QueryPreview.propTypes = {
+  // from parent
   onAdvancedModeRequest: PropTypes.func.isRequired,
+  // from compositional chain
   matches: PropTypes.array,
   negations: PropTypes.array,
   matchType: PropTypes.string,

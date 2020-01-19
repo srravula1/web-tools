@@ -78,17 +78,8 @@ class PlatformFormContainer extends React.Component {
             initialValues={initialValues}
             onEnterKey={this.handleEnterKeyDown}
             onFormChange={change}
+            onSearch={this.handleSearchClick}
           />
-          <Row>
-            <Col lg={2} xs={12}>
-              <AppButton
-                id="preview-search-button"
-                label={messages.search}
-                style={{ marginTop: 33 }}
-                onClick={this.handleSearchClick}
-              />
-            </Col>
-          </Row>
           {this.state.lastUpdated && (
             <PlatformPreview
               lastUpdated={this.state.lastUpdated}

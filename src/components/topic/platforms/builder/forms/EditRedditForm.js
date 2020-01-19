@@ -5,8 +5,9 @@ import { injectIntl } from 'react-intl';
 import { Row, Col } from 'react-flexbox-grid/lib';
 import withIntlForm from '../../../../common/hocs/IntlForm';
 import messages from '../../../../../resources/messages';
+import AppButton from '../../../../common/AppButton';
 
-const EditRedditForm = ({ renderTextField, intl, onEnterKey }) => (
+const EditRedditForm = ({ renderTextField, intl, onEnterKey, onSearch }) => (
   <>
     <Row>
       <Col lg={8} xs={12}>
@@ -30,6 +31,16 @@ const EditRedditForm = ({ renderTextField, intl, onEnterKey }) => (
         />
       </Col>
     </Row>
+    <Row>
+      <Col lg={2} xs={12}>
+        <AppButton
+          id="preview-search-button"
+          label={messages.search}
+          style={{ marginTop: 33 }}
+          onClick={onSearch}
+        />
+      </Col>
+    </Row>
   </>
 );
 
@@ -37,6 +48,7 @@ EditRedditForm.propTypes = {
   // from parent
   initialValues: PropTypes.object,
   onEnterKey: PropTypes.func,
+  onSearch: PropTypes.func.isRequired,
   // from dispatch
   onFormChange: PropTypes.func.isRequired,
   // from compositional helper
