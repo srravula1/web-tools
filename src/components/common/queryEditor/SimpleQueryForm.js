@@ -26,6 +26,7 @@ const localMessages = {
 class SimpleQueryForm extends React.Component {
   state = {
     open: false,
+    generatedQueryString: '',
   };
 
   render() {
@@ -74,14 +75,14 @@ class SimpleQueryForm extends React.Component {
             </div>
           </Col>
           <Col lg={4}>
-            <QueryPreview onAdvancedModeRequest={() => this.setState({ open: true })} />
+            <QueryPreview onAdvancedModeRequest={(generatedQueryString) => this.setState({ open: true, generatedQueryString })} />
           </Col>
         </Row>
         <ConfirmationDialog
           open={this.state.open}
           title={localMessages.advancedModeTitle}
           okText={messages.ok}
-          onOk={onAdvancedModeRequest}
+          onOk={() => onAdvancedModeRequest(this.state.generatedQueryString)}
           onCancel={() => this.setState({ open: false })}
         >
           <FormattedMessage {...localMessages.advancedModeText} />
