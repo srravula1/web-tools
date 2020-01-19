@@ -6,7 +6,7 @@ import datetime as dt
 from server.cache import cache
 from server.util.pushshift.reddit import DB_TIME_STRING
 
-PS_TWITTER_SEARCH_URL = 'https://twitter-es.pushshift.io/twitter_verified,twitter_verified2/_search'
+PS_TWITTER_SEARCH_URL = 'https://twitter-es.pushshift.io/twitter_verified/_search'
 
 
 @cache.cache_on_arguments()

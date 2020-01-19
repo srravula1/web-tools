@@ -25,8 +25,9 @@ class TwitterTest(unittest.TestCase):
     def testSplitCount(self):
         results = ps_twitter.tweet_split_count(TERM, start_date=dt.datetime.now() - dt.timedelta(days=5),
                                                end_date=dt.datetime.now())
-        assert isinstance(results, list) is True
-        assert len(results) is 6
+        assert 'counts' in results
+        assert isinstance(results['counts'], list) is True
+        assert len(results['counts']) is 6
 
     def testTotalCount(self):
         results = ps_twitter.tweet_count(TERM, start_date=dt.datetime.now() - dt.timedelta(days=5),
