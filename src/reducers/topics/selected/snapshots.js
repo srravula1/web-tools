@@ -1,5 +1,5 @@
 import { resolve } from 'redux-simple-promise';
-import { FETCH_TOPIC_SNAPSHOTS_LIST, TOPIC_FILTER_BY_SNAPSHOT, FETCH_TOPIC_SUMMARY }
+import { TOPIC_FILTER_BY_SNAPSHOT, FETCH_TOPIC_SUMMARY }
   from '../../../actions/topicActions';
 import { createAsyncReducer } from '../../../lib/reduxHelpers';
 import { snapshotDateToMoment } from '../../../lib/dateUtil';
@@ -109,20 +109,6 @@ const snapshots = createAsyncReducer({
     latestVersionRunning: false,
     selectedId: null,
     selected: null,
-  },
-  action: FETCH_TOPIC_SNAPSHOTS_LIST,
-  handleSuccess: (payload, state) => {
-    const snapshotList = cleanUpSnapshotList(payload.snapshots.list, payload.job_states);
-    return {
-      // add in an isUsable property to centralize that logic to one place (ie. here!)
-      list: snapshotList,
-      latest: latestByDate(payload.snapshots.list),
-      usingLatest: usingLatestSnapshot(payload.snapshots.list, state.selectedId),
-      latestIsUsable: latestSnaphostIsUsable(payload.snapshots.list),
-      latestUsableSnapshot: latestUsableSnapshot(snapshotList),
-      latestVersionRunning: isLatestVersionRunning(payload.snapshots.list, payload.job_states),
-      selected: getSnapshotFromListById(snapshotList, state.selectedId),
-    };
   },
   [resolve(FETCH_TOPIC_SUMMARY)]: (payload, state) => ({ // topic summary includes list of snapshots
     list: cleanUpSnapshotList(payload.snapshots.list, payload.job_states),

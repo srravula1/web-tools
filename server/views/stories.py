@@ -9,11 +9,12 @@ import newspaper
 from flask import request
 import server.util.pushshift.reddit as ps_reddit
 from server import app, cliff, NYT_THEME_LABELLER_URL, mc, TOOL_API_KEY
-from server.auth import user_mediacloud_client, user_admin_mediacloud_client, user_mediacloud_key
+from server.auth import user_mediacloud_key
 from server.util.request import api_error_handler
 import server.util.csv as csv
 from server.cache import cache
 import server.views.apicache as apicache
+import server.util.corenlp as corenlp
 
 QUERY_LAST_FEW_DAYS = "publish_date:[NOW-3DAY TO NOW]"
 QUERY_LAST_WEEK = "publish_date:[NOW-7DAY TO NOW]"
@@ -29,15 +30,11 @@ logger = logging.getLogger(__name__)
 @flask_login.login_required
 @api_error_handler
 def story_info(stories_id):
-    user_mc = user_mediacloud_client()
-    admin_mc = user_admin_mediacloud_client()
-    if stories_id in [None, 'NaN']:
-        return jsonify({'error': 'bad value'})
     if 'text' in request.args and request.args['text'] == 'true':
-        story = admin_mc.story(stories_id, text=True)
+        story = apicache.story(user_mediacloud_key(), stories_id, text=True)
     else:
-        story = user_mc.story(stories_id)
-    story["media"] = user_mc.media(story["media_id"])
+        story = apicache.story(user_mediacloud_key(), stories_id)
+    story["media"] = apicache.media(story["media_id"])
     return jsonify({'info': story})
 
 
@@ -83,10 +80,7 @@ def story_subreddit_shares_csv(stories_id):
 @api_error_handler
 def story_tags_csv(stories_id):
     # in the download include all entity types
-    admin_mc = user_admin_mediacloud_client()
-    if stories_id in [None, 'NaN']:
-        return jsonify({'error': 'bad value'})
-    story = admin_mc.story(stories_id, text=True)  # Note - this call doesn't pull cliff places
+    story = apicache.story(user_mediacloud_key(), stories_id)  # Note - this call doesn't pull cliff places
     props = ['tags_id', 'tag', 'tag_sets_id', 'tag_set']
     return csv.stream_response(story['story_tags'], props, 'story-' + str(stories_id) + '-all-tags-and-tag-sets')
 
@@ -210,7 +204,7 @@ def predict_news_labels(story_text):
 @flask_login.login_required
 @api_error_handler
 def story_top_image(stories_id):
-    story = mc.story(stories_id)
+    story = apicache.story(user_mediacloud_key(), stories_id)
     # use the tool key so anyone can see these images
     story_html = apicache.story_raw_1st_download(TOOL_API_KEY, stories_id)
     article = newspaper.Article(url=story['url'])
@@ -230,3 +224,11 @@ def story_top_image(stories_id):
         'all': [],
     })
 
+
+@app.route('/api/stories/<stories_id>/quotes', methods=['GET'])
+@flask_login.login_required
+@api_error_handler
+def story_quotes(stories_id):
+    story = apicache.story(user_mediacloud_key(), stories_id, text=True)
+    quotes = corenlp.quotes_from_text(story['story_text'])
+    return jsonify({'all': quotes})

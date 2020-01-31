@@ -68,12 +68,7 @@ def _cached_story_count(api_key, q, fq, **kwargs):
 
 
 def story_raw_1st_download(api_key, stories_id):
-    return _cached_story_raw_1st_download(api_key, stories_id)
-
-
-@cache.cache_on_arguments()
-def _cached_story_raw_1st_download(api_key, stories_id):
-    story = mc.story(stories_id, raw_1st_download=True)
+    story = _cached_story(api_key, stories_id, raw_1st_download=True)
     return story['raw_first_download_file']
 
 
@@ -97,3 +92,13 @@ def _cached_word_count(api_key, q, fq, **kwargs):
     # api_key passed in just to make this a user-level cache
     local_client = mc_client()
     return local_client.wordCount(solr_query=q, solr_filter=fq,  **kwargs)
+
+
+def story(api_key, stories_id, **kwargs):
+    return _cached_story(api_key, stories_id, **kwargs)
+
+
+@cache.cache_on_arguments()
+def _cached_story(api_key, stories_id, **kwargs):
+    local_client = mc_client(admin=True)
+    return local_client.story(stories_id, **kwargs)

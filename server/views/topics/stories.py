@@ -94,10 +94,10 @@ def topic_stories(topics_id):
         collections = _parse_collection_ids(request.args)
         sources = _parse_media_ids(request.args)
         merged_args = {}
-        if ((sources not in [None, ''] and len(sources) > 0) or collections not in [None, ''] and len(collections) > 0):
+        if (sources not in [None, ''] and len(sources) > 0) or collections not in [None, ''] and len(collections) > 0:
             query = concatenate_query_for_solr(query, sources, collections)
             merged_args = {'q': query}
-        stories = apicache.topic_story_count(user_mediacloud_key(), topics_id, **merged_args)
+        stories = apicache.topic_story_list(user_mediacloud_key(), topics_id, **merged_args)
     else:
         return jsonify({'status': 'Error', 'message': 'Invalid attempt'})
 

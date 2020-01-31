@@ -88,7 +88,10 @@ class QueryForm extends React.Component {
       submitting, handleSubmit, onSave, onMediaChange, renderSolrTextField, renderTextField, /* renderTextFieldWithFocus, */
       onCopyAll } = this.props;
     const { formatMessage } = this.props.intl;
-    const cleanedInitialValues = JSON.parse(JSON.stringify(initialValues));
+    const cleanedInitialValues = JSON.parse(JSON.stringify({
+      ...initialValues,
+      q: getQFromCodeMirror(initialValues.q), // handle CodeMirror object or string
+    }));
     if (cleanedInitialValues.disabled === undefined) {
       cleanedInitialValues.disabled = false;
     }
@@ -111,7 +114,10 @@ class QueryForm extends React.Component {
         cleanedInitialValues.media = cleanedInitialValues.media.concat(initialValues.searches);
       }
     }
-    const selectedCopy = JSON.parse(JSON.stringify(selected));
+    const selectedCopy = JSON.parse(JSON.stringify({
+      ...selected,
+      q: getQFromCodeMirror(selected.q), // handle CodeMirror object or string
+    }));
     selectedCopy.media = [];
     if (selectedCopy.collections && selectedCopy.collections.length) {
       selectedCopy.media = selectedCopy.media.concat(selectedCopy.collections);

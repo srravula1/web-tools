@@ -34,7 +34,7 @@ class PlatformFormContainer extends React.Component {
   handleEnterKeyDown = (event) => {
     switch (event.key) {
       case 'Enter':
-        this.updateQuery();
+        // this.updateQuery();
         event.preventDefault();
         break;
       default:

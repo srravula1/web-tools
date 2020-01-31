@@ -13,6 +13,7 @@ from server.views.topics import access_public_topic
 from server.views.topics import concatenate_solr_dates
 from server.views.media_picker import concatenate_query_for_solr
 from server.views.topics.topiclist import add_user_favorite_flag_to_topics
+from server.views.topics.platforms.platforms_create import platform_for_web_seed_query, topic_has_seed_query
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def _topic_seed_story_count(topic):
             fq=concatenate_solr_dates(start_date=topic['start_date'], end_date=topic['end_date'])
         )['count']
     except mediacloud.error.MCException:
-        # the query syntax is wrong (perhaps pre-story-level search
+        # the query syntax is wrong (perhaps pre-story-level search)
         seed_query_count = None
     return seed_query_count
 
@@ -42,7 +43,6 @@ def _topic_seed_story_count(topic):
 @api_error_handler
 def topic_summary(topics_id):
     topic = _topic_summary(topics_id)
-    topic['seed_query_story_count'] = _topic_seed_story_count(topic)
     return jsonify(topic)
 
 
@@ -88,14 +88,24 @@ def _topic_snapshot_list(topic):
     for idx in range(0, len(snapshots)):
         if snapshots[idx]['note'] in [None, '']:
             snapshots[idx]['note'] = idx + ARRAY_BASE_ONE
-    # seed_query story count
-    topic['seed_query_story_count'] = _topic_seed_story_count(topic)
+    # format any web seed queries as platforms objects
+    for s in snapshots:
+        platforms = []
+        if (s['seed_queries'] is not None) and ('topic' in s['seed_queries']):
+            p = platform_for_web_seed_query(s['seed_queries'])
+            platforms.append(p)
+        else:
+            if topic_has_seed_query(topic):
+                p = platform_for_web_seed_query(topic)
+                platforms.append(p)
+        s['platform_seed_queries'] = platforms
     # add foci_count for display
     snapshots = _add_snapshot_foci_count(api_key, topic['topics_id'], snapshots)
     snapshots = sorted(snapshots, key=lambda d: d['snapshot_date'])
     # extra stuff
     snapshot_status = mc.topicSnapshotGenerateStatus(topic['topics_id'])['job_states']  # need to know if one is running
     latest = snapshots[-1] if len(snapshots) > 0 else None
+    topic['seed_query_story_count'] = _topic_seed_story_count(topic)
     return {
         'list': snapshots,
         'jobStatus': snapshot_status,
@@ -116,16 +126,6 @@ def _topic_summary(topics_id):
     if is_user_logged_in():
         add_user_favorite_flag_to_topics([topic])
     return topic
-
-
-@app.route('/api/topics/<topics_id>/snapshots/list', methods=['GET'])
-@flask_login.login_required
-@api_error_handler
-def topic_snapshots_list(topics_id):
-    user_mc = user_mediacloud_client()
-    topic = user_mc.topic(topics_id)
-    snapshots = _topic_snapshot_list(topic)
-    return jsonify(snapshots)
 
 
 @app.route('/api/topics/<topics_id>/snapshots/<snapshots_id>/timespans/list', methods=['GET'])

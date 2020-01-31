@@ -63,7 +63,7 @@ class ManagePlatformsContainer extends React.Component {
   }
 
   render() {
-    const { platforms, topicInfo } = this.props;
+    const { platforms, topicInfo, selectedSnapshot } = this.props;
     const { formatMessage } = this.props.intl;
     /* TODO get the latest platform info of each category if exists, relevantPlatforms = platform.map... */
     /* and, compare previous version with current to see if new platforms and if so, offer spider and generate */
@@ -83,8 +83,8 @@ class ManagePlatformsContainer extends React.Component {
             </Row>
             <PlatformComparisonContainer
               topicInfo={topicInfo}
-              platforms={platforms.filter(p => p.isEnabled)}
-              newPlatforms={platforms}
+              platforms={selectedSnapshot ? selectedSnapshot.platform_seed_queries : []}
+              newPlatforms={platforms.filter(p => p.isEnabled)}
               latestVersionRunning={topicInfo.latestVersionRunning}
             />
             <AvailablePlatformList
@@ -111,12 +111,13 @@ class ManagePlatformsContainer extends React.Component {
 
 ManagePlatformsContainer.propTypes = {
   // from composition
-  topicId: PropTypes.number.isRequired,
-  topicInfo: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   // from state
-  platforms: PropTypes.array.isRequired,
+  topicId: PropTypes.number.isRequired,
+  topicInfo: PropTypes.object.isRequired,
   filters: PropTypes.object.isRequired,
+  platforms: PropTypes.array.isRequired,
+  selectedSnapshot: PropTypes.object,
   // from dispatch
   handleDeletePlatform: PropTypes.func.isRequired,
   handleSelectPlatform: PropTypes.func.isRequired,
@@ -128,6 +129,7 @@ const mapStateToProps = state => ({
   topicInfo: state.topics.selected.info,
   platforms: state.topics.selected.platforms.all.results,
   filters: state.topics.selected.filters,
+  selectedSnapshot: state.topics.selected.snapshots.selected,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

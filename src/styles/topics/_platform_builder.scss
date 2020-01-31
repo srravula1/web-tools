@@ -26,13 +26,14 @@
   }
 
   .platform-summary {
-    margin-bottom: 5px;
+    margin: 10px 0px;
     img {
       margin-right: 5px;
     }
     code {
-      margin: 5px 20px;
       font-size: 10px;
+      margin-bottom: 5px;
+      display: inline-block;
     }
   }
 

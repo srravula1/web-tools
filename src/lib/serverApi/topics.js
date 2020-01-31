@@ -35,10 +35,6 @@ export function fetchTopicTopWords(topicId, params) {
   return createApiPromise(`/api/topics/${topicId}/words`, acceptedParams);
 }
 
-export function topicSnapshotsList(topicId) {
-  return createApiPromise(`/api/topics/${topicId}/snapshots/list`);
-}
-
 export function topicTimespansList(topicId, snapshotId, params) {
   const acceptedParams = acceptParams(params, ['focusId']);
   return createApiPromise(`/api/topics/${topicId}/snapshots/${snapshotId}/timespans/list`, acceptedParams);

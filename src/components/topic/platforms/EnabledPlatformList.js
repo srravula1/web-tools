@@ -13,7 +13,7 @@ const EnabledPlatformList = ({ platforms, titleMsg, latestVersionNumber }) => (
 EnabledPlatformList.propTypes = {
   // from parent
   platforms: PropTypes.array.isRequired,
-  latestVersionNumber: PropTypes.string,
+  latestVersionNumber: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   titleMsg: PropTypes.object.isRequired,
   // form context
   intl: PropTypes.object.isRequired,

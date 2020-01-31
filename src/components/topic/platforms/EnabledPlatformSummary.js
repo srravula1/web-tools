@@ -4,31 +4,17 @@ import { FormattedHTMLMessage, injectIntl } from 'react-intl';
 import { platformIconUrl, platformNameMessage, sourceNameMessage } from './AvailablePlatform';
 import PlatformDetailsInfo from './PlatformDetailsInfo';
 
-const NEW_PLATFORM_ID = 'new'; // TODO undefined if a fetchAsncy
-
-const EnabledPlatformSummary = ({ platform }) => {
-  let platformHeading = null;
-  let platformChannel = null;
-  switch (platform.topic_seed_queries_id) {
-    case NEW_PLATFORM_ID:
-    case undefined:
-      platformHeading = <FormattedHTMLMessage {...sourceNameMessage(platform.source)} />;
-      platformChannel = <PlatformDetailsInfo platform={platform} />;
-      break;
-    default:
-      platformHeading = <FormattedHTMLMessage {...platformNameMessage(platform.platform, platform.source)} />;
-      platformChannel = <PlatformDetailsInfo platform={platform} />;
-      break;
-  }
-
-  return (
-    <div className="platform-summary">
+const EnabledPlatformSummary = ({ platform }) => (
+  <div className="platform-summary">
+    <b>
       <img src={platformIconUrl(platform.platform)} alt={platform.platform} />
-      { platformHeading }
-      { platformChannel }
-    </div>
-  );
-};
+      <FormattedHTMLMessage {...platformNameMessage(platform.platform, platform.source)} />
+      &nbsp;
+      (<FormattedHTMLMessage {...sourceNameMessage(platform.source)} />)
+    </b>
+    <PlatformDetailsInfo platform={platform} />
+  </div>
+);
 
 EnabledPlatformSummary.propTypes = {
   // from parent

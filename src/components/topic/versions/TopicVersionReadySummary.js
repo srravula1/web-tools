@@ -1,10 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import { platformNameMessage, sourceNameMessage } from '../platforms/AvailablePlatform';
+import messages from '../../../resources/messages';
 
 const localMessages = {
-  completedDetails: { id: 'topic.state.completedDetails', defaultMessage: 'Includes {total} stories ({discoveredPct} discovered) and {fociCount, plural,\n =0 {no subtopics}\n =1 {one subtopic}\n other {# subtopics}}.' },
-  subtopicDetails: { id: 'topic.state.subtopicDetails', defaultMessage: 'details' },
+  completedDetails: { id: 'topic.state.completedDetails', defaultMessage: 'Includes {total} stories ({discoveredPct} discovered), {platformCount, plural,\n =0 {no platforms}\n =1 {1 platform}\n other {# platforms}}, and {fociCount, plural,\n =0 {no subtopics}\n =1 {1 subtopic}\n other {# subtopics}}.' },
+  snapshotDetails: { id: 'topic.state.snapshotDetails', defaultMessage: 'details' },
 };
 
 class TopicVersionReadySummary extends React.Component {
@@ -13,8 +15,8 @@ class TopicVersionReadySummary extends React.Component {
   };
 
   render() {
-    const { storyCounts, snapshot } = this.props;
-    const { formatNumber } = this.props.intl;
+    const { storyCounts, snapshot, intl } = this.props;
+    const { formatNumber } = intl;
     return (
       <>
         <FormattedMessage
@@ -22,25 +24,41 @@ class TopicVersionReadySummary extends React.Component {
           values={{
             total: formatNumber(storyCounts.total),
             discoveredPct: storyCounts.total === 0 ? '0%' : formatNumber(storyCounts.spidered / storyCounts.total, { style: 'percent', maximumFractionDigits: 0 }),
+            platformCount: snapshot.platform_seed_queries.length,
             fociCount: snapshot.foci_count,
           }}
         />
         &nbsp;
         <a
-          href="#subtopic-details"
+          href="#version-details"
           onClick={(evt) => {
             evt.preventDefault();
             this.setState(state => ({ showDetails: !state.showDetails }));
           }}
         >
-          <FormattedMessage {...localMessages.subtopicDetails} />
+          <FormattedMessage {...localMessages.snapshotDetails} />
         </a>
         <span>
           {this.state.showDetails && (
             <ul>
-              {snapshot.foci_names.map((fs, idx) => (
-                <li key={idx}><b>{fs.focal_set_name}</b>: {fs.foci_names.join(', ')}</li>
-              ))}
+              <li><FormattedMessage {...messages.platformHeader} />:
+                <ul>
+                  {snapshot.platform_seed_queries.map((p, idx) => (
+                    <li key={idx}>
+                      <FormattedMessage {...platformNameMessage(p.platform, p.source)} />
+                      &nbsp;
+                      (<FormattedMessage {...sourceNameMessage(p.source)} />)
+                    </li>
+                  ))}
+                </ul>
+              </li>
+              <li><FormattedMessage {...messages.focusHeader} />:
+                <ul>
+                  {snapshot.foci_names.map((fs, idx) => (
+                    <li key={idx}>{fs.focal_set_name}: {fs.foci_names.join(', ')}</li>
+                  ))}
+                </ul>
+              </li>
             </ul>
           )}
         </span>

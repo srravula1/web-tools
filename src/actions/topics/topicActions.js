@@ -21,10 +21,6 @@ export const updateTopicFilterParsingStatus = createAction(UPDATE_TOPIC_FILTER_P
 export const SELECT_TOPIC = 'SELECT_TOPIC';
 export const selectTopic = createAction(SELECT_TOPIC, id => parseInt(id, 10));
 
-// pass in topicId
-export const FETCH_TOPIC_SNAPSHOTS_LIST = 'FETCH_TOPIC_SNAPSHOTS_LIST';
-export const fetchTopicSnapshotsList = createAsyncAction(FETCH_TOPIC_SNAPSHOTS_LIST, api.topicSnapshotsList);
-
 // pass in snapshotId
 export const TOPIC_FILTER_BY_SNAPSHOT = 'TOPIC_FILTER_BY_SNAPSHOT';
 export const filterBySnapshot = createAction(TOPIC_FILTER_BY_SNAPSHOT, id => id);
