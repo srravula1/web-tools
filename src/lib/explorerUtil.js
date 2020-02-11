@@ -111,7 +111,8 @@ export function generateQueryParamObject(query, skipEncoding) {
     startDate: query.startDate,
     endDate: query.endDate,
     sources: query.sources && query.sources.length > 0 ? query.sources.map(s => (s.id ? s.id : s)) : [], // id field or the id itself
-    collections: query.collections && query.collections.length > 0 ? query.collections.map(s => (s.id ? s.id : s)) : [],
+    // handle an object or an id, and also make sure to screen out -1 (placeholder for ALL_MEDIA)
+    collections: query.collections && query.collections.length > 0 ? query.collections.map(c => (c.id ? c.id : c)).filter(c => c > 0) : [],
     searches: query.searches && query.searches.length > 0 ? serializeSearchTags(query.searches) : [],
   };
 }

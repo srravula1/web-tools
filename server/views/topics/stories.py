@@ -116,7 +116,7 @@ def topic_stories_csv(topics_id):
     include_fb_date = (request.args['fbData'] == '1') if 'fbData' in request.args else False
     return stream_story_list_csv(user_mediacloud_key(), "stories", topic,
                                  story_limit=story_limit, reddit_submissions=reddit_submissions,
-                                 story_tags=story_tags, include_fb_date=include_fb_date,
+                                 story_tags=story_tags, fb_data=include_fb_date,
                                  media_metadata=media_metadata)
 
 
@@ -331,7 +331,8 @@ def _topic_story_page_with_media(user_key, topics_id, link_id, **kwargs):
         # build a media lookup table in parallel so it is faster
         if include_media_metadata:
             with concurrent.futures.ProcessPoolExecutor() as executor:
-                jobs = [{'user_key': user_key, 'media_id': s['media_id']} for s in story_page['stories']]
+                media_ids = set([s['media_id'] for s in story_page['stories']])
+                jobs = [{'user_key': user_key, 'media_id': mid} for mid in media_ids]
                 job_results = executor.map(_media_info_worker, jobs)  # blocks until they are all done
                 media_lookup = {j['media_id']: j for j in job_results}
 
