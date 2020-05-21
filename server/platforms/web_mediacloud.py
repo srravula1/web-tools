@@ -36,7 +36,7 @@ class WebMediaCloudProvider(ContentProvider):
         :param query:
         :param start_date:
         :param end_date:
-        :param kwargs:
+        :param kwargs: sources and collections
         :return:
         """
         q, fq = self._as_query_and_filter_query(query, start_date, end_date, **kwargs)
@@ -49,7 +49,7 @@ class WebMediaCloudProvider(ContentProvider):
         :param query:
         :param start_date:
         :param end_date:
-        :param kwargs:
+        :param kwargs: sources and collections
         :return:
         """
         q, fq = self._as_query_and_filter_query(query, start_date, end_date, **kwargs)
@@ -64,7 +64,7 @@ class WebMediaCloudProvider(ContentProvider):
         :param start_date:
         :param end_date:
         :param limit:
-        :param kwargs:
+        :param kwargs: sources and collections
         :return:
         """
         q, fq = self._as_query_and_filter_query(query, start_date, end_date, **kwargs)
