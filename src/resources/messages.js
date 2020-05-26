@@ -76,6 +76,7 @@ const messages = {
   feedUrl: { id: 'feed.url', defaultMessage: 'URL' },
   feedType: { id: 'feed.type', defaultMessage: 'Type' },
   feedIsActive: { id: 'feed.active', defaultMessage: 'Active' },
+  feedIsDisabled: { id: 'feed.inactive', defaultMessage: 'Disabled' },
 
   timespan: { id: 'common.timespan', defaultMessage: 'Timespan' },
 

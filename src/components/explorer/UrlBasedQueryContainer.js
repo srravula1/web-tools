@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { schemeCategory10 } from 'd3';
 import { push } from 'react-router-redux';
-import withAsyncData from '../common/hocs/AsyncDataContainer';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { LEVEL_ERROR } from '../common/Notice';
 import { addNotice } from '../../actions/appActions';
-import { saveParsedQueries, fetchSampleSearches, updateQuerySourceLookupInfo, updateQueryCollectionLookupInfo, updateQuerySearchLookupInfo,
+import { saveParsedQueries, updateQuerySourceLookupInfo, updateQueryCollectionLookupInfo, updateQuerySearchLookupInfo,
   fetchQuerySourcesByIds, fetchQueryCollectionsByIds, fetchQuerySearchesByIds, demoQuerySourcesByIds, demoQueryCollectionsByIds } from '../../actions/explorerActions';
 import { DEFAULT_COLLECTION_OBJECT_ARRAY, autoMagicQueryLabel, decodeQueryParamString, serializeQueriesForUrl,
   uniqueQueryId, prepSearches } from '../../lib/explorerUtil';
@@ -74,13 +73,8 @@ function composeUrlBasedQueryContainer() {
         // read the URL and decide how to update the queries in the store
         const { addAppNotice } = this.props;
         const { formatMessage } = this.props.intl;
-        // regular searches are in a queryParam, but samples by id are part of the path
-        const url = location.pathname;
-        const lastPathPart = url.slice(url.lastIndexOf('/') + 1, url.length);
-        const sampleNumber = parseInt(lastPathPart, 10);
-        if (!Number.isNaN(sampleNumber)) {
-          this.updateQueriesFromSampleId(sampleNumber);
-        } else if (location.query.q) {
+        // regular searches are in a queryParam
+        if (location.query.q) {
           // this is a crazy fix to make embedded quotes work by forcing us to escape them all... partially because
           // react-router decided to decode url components, partially because the JSON parser isn't that clever
           this.updateQueriesFromQParam(location.query.q, autoName);
@@ -133,13 +127,6 @@ function composeUrlBasedQueryContainer() {
         } catch (f) {
           addAppNotice({ level: LEVEL_ERROR, message: formatMessage(localMessages.errorInURLParams) });
         }
-      }
-
-      updateQueriesFromSampleId(sampleNumber) {
-        const { saveQueriesFromParsedUrl, samples, isLoggedIn } = this.props;
-        const queriesFromUrl = samples[sampleNumber].queries;
-        // push the queries in to the store
-        saveQueriesFromParsedUrl(queriesFromUrl, isLoggedIn);
       }
 
       updateQueriesFromString(queriesFromUrl, autoNaming) {
@@ -214,8 +201,6 @@ function composeUrlBasedQueryContainer() {
       location: PropTypes.object,
       // from store
       isLoggedIn: PropTypes.bool.isRequired,
-      fetchStatus: PropTypes.string.isRequired,
-      samples: PropTypes.array,
       queries: PropTypes.array,
       lastSearchTime: PropTypes.number,
       // from dispatch
@@ -226,8 +211,6 @@ function composeUrlBasedQueryContainer() {
 
     const mapStateToProps = state => ({
       isLoggedIn: state.user.isLoggedIn,
-      fetchStatus: state.explorer.samples.fetchStatus,
-      samples: state.explorer.samples.list,
       queries: state.explorer.queries.queries,
       lastSearchTime: state.explorer.lastSearchTime.time,
     });
@@ -298,13 +281,9 @@ function composeUrlBasedQueryContainer() {
       },
     });
 
-    const fetchAsyncData = dispatch => dispatch(fetchSampleSearches()); // inefficient: we need the sample searches loaded just in case
-
     return injectIntl(
       connect(mapStateToProps, mapDispatchToProps)(
-        withAsyncData(fetchAsyncData)(
-          UrlBasedQueryContainer
-        )
+        UrlBasedQueryContainer
       )
     );
   };

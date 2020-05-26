@@ -12,6 +12,7 @@ from server.auth import user_mediacloud_client, user_admin_mediacloud_client, us
 from server.util.request import filters_from_args
 from server.util.api_helper import add_missing_dates_to_split_story_counts
 from server.views.topics.foci.focalsets import is_url_sharing_focal_set
+import server.views.apicache as base_apicache
 
 logger = logging.getLogger(__name__)
 
@@ -199,7 +200,7 @@ def topic_word_counts(user_mc_key, topics_id, **kwargs):
     words = [w['term'] for w in word_data]
     # and now add in word2vec model position data
     if len(words) > 0:
-        google_word2vec_data = _cached_word2vec_google_2d_results(words)
+        google_word2vec_data = base_apicache.word2vec_google_2d(words)
         for i in range(len(google_word2vec_data)):
             word_data[i]['google_w2v_x'] = google_word2vec_data[i]['x']
             word_data[i]['google_w2v_y'] = google_word2vec_data[i]['y']
@@ -228,12 +229,6 @@ def topic_similar_words(topics_id, word):
 
 def _word2vec_topic_similar_words(topics_id, snapshots_id, words):
     word2vec_results = wordembeddings.topic_similar_words(topics_id, snapshots_id, words)
-    return word2vec_results
-
-
-@cache.cache_on_arguments()
-def _cached_word2vec_google_2d_results(words):
-    word2vec_results = wordembeddings.google_news_2d(words)
     return word2vec_results
 
 

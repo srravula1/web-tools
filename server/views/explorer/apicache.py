@@ -155,18 +155,6 @@ def _cached_word_count(mc_api_key, q, fq, ngram_size, num_words, sample_size):
                               http_method='POST')
 
 
-def word2vec_google_2d(words):
-    return _cached_word2vec_google_2d(words)
-
-
-@cache.cache_on_arguments()
-def _cached_word2vec_google_2d(words):
-    # don't need to be user-level cache here - can be app-wide because results are from another service that doesn't
-    # have any concept of permissioning
-    word2vec_results = wordembeddings.google_news_2d(words)
-    return word2vec_results
-
-
 def tag_set(tag_sets_id):
     return _cached_tag_set(base_cache.api_key(), tag_sets_id)
 

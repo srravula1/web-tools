@@ -23,7 +23,6 @@ env
 *.gexf
 .idea
 sketches/*
-config/test.config.js
 react-codemod
 config/app.config
 *.ipynb
@@ -32,4 +31,3 @@ src/components/explorer/results/drilldowns/WordInContextDrillDownContainer.js
 build/public/
 server/static/data/tags_in*
 server/static/data/*.csv
-

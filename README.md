@@ -24,7 +24,6 @@ Node and npm:
  * On Windows, make sure to create an environment variable: `set NODE_ENV=dev`
  * make sure your node installation is up-to-date (we work with v8.2.1 right now)
  * `npm install` to install all the package dependencies (as specified in the `package.json`)
- * install watchman for the testing (`brew install --HEAD watchman`)
 
 MongoDB:
 [Install MongoDb](https://docs.mongodb.com/manual/installation/).  We develop on OS X and install via the [HomeBrew package manager](http://brew.sh): `brew install mongodb`
@@ -41,12 +40,13 @@ Coming soon
 Configuration
 ------------- 
 
-Copy `config/server.config.template` to `config/server.config` and fill in the required info there.
+Copy `config/app.config.template` to `config/app.config` and fill in the required info there.
 
 Running the Apps
 ----------------
 
 You need to open two terminal windows and run one thing in each (so the hot-reloading can work):
+ * `redis-server` to start redis (if it's not running already)
  * `npm run topics-dev` or `npm run sources-dev`
  * `python run.py`
     - if you get flask errors, run the `pip install -r requirements.txt` line again. On Mac Osx, you may need to run with --ignore-installed
