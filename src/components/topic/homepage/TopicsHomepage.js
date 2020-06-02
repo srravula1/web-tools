@@ -13,7 +13,6 @@ import DataCard from '../../common/DataCard';
 import { AddButton } from '../../common/IconButton';
 import messages from '../../../resources/messages';
 import Masthead from '../../common/header/Masthead';
-import { WarningNotice } from '../../common/Notice';
 import TopicsMarketingFeatureList from './TopicsMarketingFeatureList';
 import TopicQuickSearchContainer from '../search/TopicQuickSearchContainer';
 
@@ -23,7 +22,6 @@ const localMessages = {
   about: { id: 'home.intro', defaultMessage: '<p>Use Topic Mapper to dive in deeper on an issue you are investigating.  Once you\'ve used <a href="https://explorer.mediacloud.org">the Explorer</a> to narrow in on a query, media sources, and time period you want to investigate, then you can create a Topic to collect more stories, analyze influence, and slice and dice the content.  This lets you research the media conversation about your topic with more rigor.</p>' },
   publicHomeTitle: { id: 'home.title', defaultMessage: 'Explore Public Topics' },
   loginTitle: { id: 'sources.intro.login.title', defaultMessage: 'Have an Account? Login Now' },
-  security: { id: 'login.securitynotice', defaultMessage: 'We recently noticed a security problem and reset all passwords. We emailed everyone a link to reset your password. <br />If you can\'t find that email, <a href={link}> reset your password here.</a>' },
 };
 
 const TopicsHomepage = (props) => {
@@ -70,11 +68,6 @@ const TopicsHomepage = (props) => {
             </Col>
             <Col lg={1} xs={0} />
             <Col lg={5} xs={12}>
-              <br />
-              <WarningNotice>
-                <br />
-                <FormattedHTMLMessage {...localMessages.security} values={{ link: '#/user/request-password-reset' }} /><br />
-              </WarningNotice>
               <DataCard>
                 <h2><FormattedMessage {...localMessages.loginTitle} /></h2>
                 <LoginForm redirect="/home" />
