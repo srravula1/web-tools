@@ -17,6 +17,7 @@ TopicStoryTableContainer.propTypes = {
   showTweetCounts: PropTypes.bool.isRequired,
   topicId: PropTypes.number.isRequired,
   usingUrlSharingSubtopic: PropTypes.bool.isRequired,
+  hasAUrlSharingFocalSet: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({

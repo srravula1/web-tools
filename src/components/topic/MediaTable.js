@@ -7,8 +7,19 @@ import LinkWithFilters from './LinkWithFilters';
 import { googleFavIconUrl } from '../../lib/urlUtil';
 import StorySearchFilterMediaWarning from './StorySearchFilterMediaWarning';
 import SafelyFormattedNumber from '../common/SafelyFormattedNumber';
+import { constructUrlSharingDataColumns } from './TopicStoryTable';
 
 const ICON_STYLE = { margin: 0, padding: 0, width: 12, height: 12 };
+
+const localMessages = {
+  undateable: { id: 'media.publishDate.undateable', defaultMessage: 'Undateable' },
+  foci: { id: 'media.foci.list', defaultMessage: 'List of Subtopics {list}' },
+  facebookSharesHelp: { id: 'media.help.facebookShares', defaultMessage: '<p>The total number of shares this link has had on Facebook. It is important to note that this is captures at the time we first pulled this link into our system. Also note that many of these shares could have been for reasons totalled unrealted to the topic you are researching. Based on those caveats, we don\'t recommend using this for much.<p>' },
+  authorCountHelp: { id: 'media.help.authorCount', defaultMessage: '<p>The number of unique users that posted this link to the platform you are looking at.<p>' },
+  postCountHelp: { id: 'media.help.postCount', defaultMessage: '<p>The number of posts that included this link on the platform you are looking at.<p>' },
+  channelCountHelp: { id: 'media.help.channelCount', defaultMessage: '<p>This varies by platform:</p><ul><li>Twitter: it is identical to the author count</li></ul>' },
+  urlSharingSubtopicDataNames: { id: 'media.urlSharingSubtopicDataNames', defaultMessage: 'post/author/channel' },
+};
 
 class MediaTable extends React.Component {
   sortableHeader = (sortKey, textMsg) => {
@@ -44,7 +55,13 @@ class MediaTable extends React.Component {
   }
 
   render() {
-    const { media, topicId, includeMetadata, showTweetCounts, usingUrlSharingSubtopic } = this.props;
+    const { media, topicId, includeMetadata, showTweetCounts, usingUrlSharingSubtopic, hasAUrlSharingFocalSet } = this.props;
+    let urlSharingSubtopicNames = null;
+    if (hasAUrlSharingFocalSet && (media.length > 0)) {
+      // intuit a list of the subtopics from the url sharing counts on the first media source
+      // alternatively, we could pass in the subtopics and use those, but this information is already here
+      urlSharingSubtopicNames = media[0].url_sharing_counts.map(d => d.focus_name);
+    }
     return (
       <div className="media-table">
         <StorySearchFilterMediaWarning />
@@ -79,6 +96,7 @@ class MediaTable extends React.Component {
                   <th><FormattedMessage {...messages.countryOfFocus} /></th>
                 </>
               )}
+              {hasAUrlSharingFocalSet && urlSharingSubtopicNames.map((name, idx) => <th key={`subtopic-${idx}`}>{name}<br /><FormattedMessage {...localMessages.urlSharingSubtopicDataNames} /></th>)}
             </tr>
             {media.map((m, idx) => (
               <tr key={m.media_id} className={(idx % 2 === 0) ? 'even' : 'odd'}>
@@ -117,6 +135,7 @@ class MediaTable extends React.Component {
                     <td>{m.metadata.about_country ? m.metadata.about_country.label : '?'}</td>
                   </>
                 )}
+                {hasAUrlSharingFocalSet && constructUrlSharingDataColumns(urlSharingSubtopicNames, m)}
               </tr>
             ))}
           </tbody>
@@ -137,6 +156,7 @@ MediaTable.propTypes = {
   // from parent container
   showTweetCounts: PropTypes.bool,
   usingUrlSharingSubtopic: PropTypes.bool.isRequired,
+  hasAUrlSharingFocalSet: PropTypes.bool.isRequired,
 };
 
 export default injectIntl(MediaTable);

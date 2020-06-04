@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import MediaTable from './MediaTable';
-import { isUrlSharingFocalSet } from '../../lib/topicVersionUtil';
+import { isUrlSharingFocalSet, hasAUrlSharingFocalSet } from '../../lib/topicVersionUtil';
 
 /**
  * Simple wrapper around MediaTable to pull in some stuff from state (so the components that use
@@ -18,6 +18,7 @@ MediaTableContainer.propTypes = {
   showTweetCounts: PropTypes.bool.isRequired,
   topicId: PropTypes.number.isRequired,
   usingUrlSharingSubtopic: PropTypes.bool.isRequired,
+  hasAUrlSharingFocalSet: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -26,6 +27,7 @@ const mapStateToProps = state => ({
   showTweetCounts: Boolean(state.topics.selected.info.ch_monitor_id),
   // only show the author count, and hide inlinks/outlinks, if the user is in a "url sharing" focus
   usingUrlSharingSubtopic: (state.topics.selected.filters.focusId !== null) && isUrlSharingFocalSet(state.topics.selected.timespans.selected.focal_set),
+  hasAUrlSharingFocalSet: hasAUrlSharingFocalSet(state.topics.selected.focalSets.all.list),
 });
 
 export default (

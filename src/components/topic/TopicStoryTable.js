@@ -20,6 +20,26 @@ const localMessages = {
   urlSharingSubtopicDataNames: { id: 'story.urlSharingSubtopicDataNames', defaultMessage: 'post/author/channel' },
 };
 
+export const constructUrlSharingDataColumns = (subtopicNames, item) => {
+  let urlSharingColData = [];
+  // we have to construct the columns showing url sharing data one by one in order, because not every story is in every subtopic
+  urlSharingColData = subtopicNames.map(name => {
+    const data = item.url_sharing_counts.find(d => d.focus_name === name);
+    if (data) {
+      // this story,media is in this subtopic
+      if (data.media_id) {
+        return (<td>{data.sum_post_count} / {data.sum_author_count} / {data.sum_channel_count}</td>);
+      }
+      if (data.stories_id) {
+        return (<td>{data.post_count} / {data.author_count} / {data.channel_count}</td>);
+      }
+    }
+    // this story,media is not in this subtopic
+    return (<td />);
+  });
+  return urlSharingColData;
+};
+
 const ICON_STYLE = { margin: 0, padding: 0, width: 12, height: 12 };
 
 /**
@@ -109,7 +129,7 @@ class TopicStoryTable extends React.Component {
               )}
               <th>{}</th>
               <th><FormattedMessage {...messages.focusHeader} /></th>
-              {hasAUrlSharingFocalSet && urlSharingSubtopicNames.map(name => <th>{name}<br /><FormattedMessage {...localMessages.urlSharingSubtopicDataNames} /></th>)}
+              {hasAUrlSharingFocalSet && urlSharingSubtopicNames.map((name, idx) => <th key={`subtopic-${idx}`}>{name}<br /><FormattedMessage {...localMessages.urlSharingSubtopicDataNames} /></th>)}
             </tr>
             {stories.map((story, idx) => {
               const domain = storyDomainName(story);
@@ -131,19 +151,6 @@ class TopicStoryTable extends React.Component {
                     </span>
                   )));
                 // listOfFoci = intersperse(listOfFoci, ', ');
-              }
-              // we have to construct the columns shwoing url sharing data one by one in order, because not every story is in every subtopic
-              let urlSharingColData = [];
-              if (hasAUrlSharingFocalSet) {
-                urlSharingColData = urlSharingSubtopicNames.map(name => {
-                  const data = story.url_sharing_counts.find(item => item.focus_name === name);
-                  if (data) {
-                    // this story is in this subtopic
-                    return (<td>{data.post_count} / {data.author_count} / {data.channel_count}</td>);
-                  }
-                  // this story is not in this subtopic
-                  return (<td />);
-                });
               }
               return (
                 <tr key={story.stories_id} className={(idx % 2 === 0) ? 'even' : 'odd'}>
@@ -182,7 +189,7 @@ class TopicStoryTable extends React.Component {
                     </a>
                   </td>
                   <td>{listOfFoci}</td>
-                  {urlSharingColData}
+                  {hasAUrlSharingFocalSet && constructUrlSharingDataColumns(urlSharingSubtopicNames, story)}
                 </tr>
               );
             })}
