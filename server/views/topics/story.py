@@ -4,9 +4,10 @@ import logging
 from mediacloud.error import MCException
 
 from server import app
-from server.auth import user_mediacloud_client, user_mediacloud_key
+from server.auth import user_mediacloud_key
 from server.util import tags as tag_util
 from server.util.request import api_error_handler
+import server.views.apicache as base_apicache
 from server.views.topics import apicache as apicache
 from server.views.topics.stories import _cached_geoname
 
@@ -17,11 +18,10 @@ logger = logging.getLogger(__name__)
 @flask_login.login_required
 @api_error_handler
 def story(topics_id, stories_id):
-    local_mc = user_mediacloud_client()
     story_topic_info = apicache.topic_story_list(user_mediacloud_key(), topics_id, stories_id=stories_id)
     story_topic_info = story_topic_info['stories'][0]
     try:
-        story_info = local_mc.story(stories_id)  # add in other fields from regular call
+        story_info = base_apicache.story(stories_id)  # add in other fields from regular call
         for k in story_info.keys():
             story_topic_info[k] = story_info[k]
         for tag in story_info['story_tags']:

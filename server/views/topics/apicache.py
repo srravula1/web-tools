@@ -358,14 +358,9 @@ def topic_tag_counts(user_mc_key, topics_id, tag_sets_id):
 
 @cache.cache_on_arguments()
 def _cached_topic_tag_counts(user_mc_key, topics_id, tag_sets_id, query):
-    user_mc = user_mediacloud_client(user_mc_key)
-    # we don't need ot use topics_id here because the timespans_id is in the query argument
-    tag_counts = user_mc.storyTagCount(query, tag_sets_id=tag_sets_id)
-    # add in the pct so we can show relative values within the sample
-    for t in tag_counts:
-        if is_bad_theme(t['tags_id']):
-            tag_counts.remove(t)
-    return tag_counts
+    # even though we call base_apicache under the hood here, we want to make sure the cache is keyed by
+    # API key, because topics have user-level permissioning
+    return base_apicache.top_tags(query, None, tag_sets_id=tag_sets_id)
 
 
 def topic_sentence_sample(user_mc_key, topics_id, sample_size=1000, **kwargs):
@@ -433,7 +428,7 @@ def add_to_user_query(query_to_add):
 def matching_timespans_in_foci(topics_id, timespan_to_match, foci):
     """
     For cross-subtopic analysis within a subtopic set, we need to identify the timespan that has the same date
-    range in each subtopic within the set.  This helper does that annoying work for you. 
+    range in each subtopic within the set.  This helper does that annoying work for you.
     """
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     timespans = []

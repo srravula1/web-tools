@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 @app.route('/api/explorer/stories/count.csv', methods=['POST'])
-@api_error_handler
 @flask_login.login_required
+@api_error_handler
 def explorer_story_count_csv():
     filename = 'total-story-count'
     data = request.form
@@ -71,8 +71,8 @@ def api_explorer_story_split_count():
 
 
 @app.route('/api/explorer/stories/split-count.csv', methods=['POST'])
-@api_error_handler
 @flask_login.login_required
+@api_error_handler
 def api_explorer_story_split_count_csv():
     filename = 'stories-over-time'
     data = request.form
@@ -98,8 +98,8 @@ def api_explorer_story_split_count_csv():
 
 
 @app.route('/api/explorer/stories/split-count-all.csv', methods=['POST'])
-@api_error_handler
 @flask_login.login_required
+@api_error_handler
 def api_explorer_combined_story_split_count_csv():
     filename = 'stories-over-time'
     data = request.form

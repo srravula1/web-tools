@@ -22,7 +22,6 @@ ARRAY_BASE_ONE = 1
 def _topic_seed_story_count(topic):
     try:
         seed_query_count = shared_apicache.story_count(
-            user_mediacloud_key(),
             q=concatenate_query_for_solr(solr_seed_query=topic['solr_seed_query'],
                                          media_ids=[m['media_id'] for m in topic['media'] if 'media_id' in m],
                                          tags_ids=[t['tags_id'] for t in topic['media_tags'] if 'tags_id' in t]),
