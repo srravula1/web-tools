@@ -91,5 +91,5 @@ class WebMediaCloudProvider(ContentProvider):
         media_ids = kwargs['sources'] if 'sources' in kwargs else []
         tags_ids = kwargs['collections'] if 'collections' in kwargs else []
         q = concatenate_query_for_solr(query, media_ids, tags_ids)
-        fq = MediaCloud.publish_date_query(start_date, end_date)
+        fq = MediaCloud.dates_as_query_clause(start_date, end_date)
         return q, fq

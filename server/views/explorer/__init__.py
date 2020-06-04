@@ -21,7 +21,7 @@ def dates_as_filter_query(start_date, end_date):
     if start_date:
         testa = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
         testb = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
-        date_query = mc.publish_date_query(testa, testb, True, True)
+        date_query = mc.dates_as_query_clause(testa, testb)
     return date_query
 
 
