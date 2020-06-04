@@ -61,9 +61,9 @@ def stream_story_list_csv(user_key, filename, topic, **kwargs):
     # we have to make an extra, non-topic storyList calls if the user wants to include subtopics and themes (ie. story tags)
     include_story_tags = ('story_tags' in kwargs) and (kwargs['story_tags'] == '1')
     # if the focusId is a URL Sharing subtopic, then we have platform-specific post/author/channel share counts
-    include_platform_url_shares = kwargs['include_platform_url_shares'] if 'include_platform_url_shares' in kwargs else False
+    include_platform_url_shares = ('platform_url_shares' in kwargs) and (kwargs['platform_url_shares'] == '1')
     # if this topic includes platforms, then we have URL sharing counts (post/author/channel) for each platform
-    include_all_url_shares = kwargs['include_all_url_shares'] if 'include_all_url_shares' in kwargs else False
+    include_all_url_shares = ('social_shares' in kwargs) and (kwargs['social_shares'] == '1')
     params = kwargs.copy()
 
     snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
@@ -117,7 +117,7 @@ def stream_story_list_csv(user_key, filename, topic, **kwargs):
 # generator you can use to handle a long list of stories row by row (one row per story)
 def _topic_story_list_by_page_as_csv_row(user_key, topics_id, props, **kwargs):
     yield ','.join(props) + '\n'  # first send the column names
-    include_all_url_shares = kwargs['include_all_url_shares'] if 'include_all_url_shares' in kwargs else False
+    include_all_url_shares = ('social_shares' in kwargs) and (kwargs['social_shares'] == '1')
     story_count = 0
     link_id = 0
     more_pages = True
