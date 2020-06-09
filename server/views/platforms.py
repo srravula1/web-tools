@@ -64,7 +64,7 @@ def api_platforms_sample():
     except NotImplementedError:  # if this provider doesn't support previewing the data, let the client know
         content_list = []
         supported = False
-    return jsonify({'list': content_list, 'supported': supported})
+    return jsonify({'list': content_list, 'total': len(content_list), 'supported': supported})
 
 
 @app.route('/api/platforms/count', methods=['POST'])
