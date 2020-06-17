@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "date": "2020-06-17",
+      "version": "v3.14.1",
+      "notes": [
+        {
+          "apps": [ "explorer" ],
+          "type": "Fixed",
+          "note": "Missing bigram / trigram downloads"
+        }
+      ]
+    },
+    {
       "date": "2020-06-05",
       "version": "v3.14.0",
       "notes": [
