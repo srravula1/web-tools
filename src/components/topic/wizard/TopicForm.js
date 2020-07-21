@@ -66,7 +66,7 @@ const TopicForm = (props) => {
           {formContent}
         </Col>
         <Col lg={2}>
-          <a target="_new" href="http://bit.ly/creating-topics-guide">
+          <a target="_new" href="https://mediacloud.org/news/2020/7/21/supporting-cross-platform-research-in-media-cloud">
             <figure className="document-download">
               <img alt={formatMessage(localMessages.downloadUserGuide)} src={assetUrl('/static/img/topic-mapper-user-guide.png')} height="160" />
               <figcaption><FormattedMessage {...localMessages.downloadUserGuide} /></figcaption>
