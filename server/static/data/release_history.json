@@ -1,6 +1,57 @@
 {
   "releases": [
     {
+      "date": "2020-07-21",
+      "version": "v3.15.0",
+      "notes": [
+        {
+          "apps": [ "sources" ],
+          "type": "New",
+          "note": "Updated collections by country list"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Multi-platform support"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "Fixed",
+          "note": "Support long queries when creating topics"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Removed overall FB Shares, inlinks, outlinks columns for URL sharing subtopic"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Removed support for public topics"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Download all the media links within a timespan"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "Fixed",
+          "note": "Download topic world cloud with large sample size"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Removed story explorer"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Posts column renamed to author count"
+        }
+      ]
+    },
+    {
       "date": "2020-06-29",
       "version": "v3.14.2",
       "notes": [
