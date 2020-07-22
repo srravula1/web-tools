@@ -23,10 +23,6 @@ const localMessages = {
 };
 
 class SelectCollectionContainer extends React.Component {
-  componentWillUnmount() {
-    const { removeCollectionId } = this.props;
-    removeCollectionId();
-  }
 
   searchInExplorer = (evt) => {
     const { collection } = this.props;
@@ -73,8 +69,6 @@ class SelectCollectionContainer extends React.Component {
 
 SelectCollectionContainer.propTypes = {
   intl: PropTypes.object.isRequired,
-  // from dispatch
-  removeCollectionId: PropTypes.func.isRequired,
   // from context
   location: PropTypes.object.isRequired,
   params: PropTypes.object.isRequired, // params from router
@@ -91,13 +85,6 @@ const mapStateToProps = (state, ownProps) => ({
   collection: state.sources.collections.selected.collectionDetails.object,
 });
 
-
-const mapDispatchToProps = dispatch => ({
-  removeCollectionId: () => {
-    dispatch(selectCollection(null));
-  },
-});
-
 const fetchAsyncData = (dispatch, { collectionId }) => {
   dispatch(selectCollection(collectionId));
   dispatch(fetchCollectionDetails(collectionId));
@@ -105,7 +92,7 @@ const fetchAsyncData = (dispatch, { collectionId }) => {
 
 export default
 injectIntl(
-  connect(mapStateToProps, mapDispatchToProps)(
+  connect(mapStateToProps)(
     withAsyncData(fetchAsyncData, ['collectionId'])(
       SelectCollectionContainer
     )
