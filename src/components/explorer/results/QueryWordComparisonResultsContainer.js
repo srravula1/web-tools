@@ -5,10 +5,8 @@ import { connect } from 'react-redux';
 import { Grid, Row, Col } from 'react-flexbox-grid/lib';
 import withQueryResults from './QueryResultsSelector';
 import { selectComparativeWordField, updateQuery } from '../../../actions/explorerActions';
-import { getUidIndex } from '../../../lib/explorerUtil';
 import { getBrandDarkColor } from '../../../styles/colors';
 import ComparativeOrderedWordCloud from '../../vis/ComparativeOrderedWordCloud';
-import OrderedWordCloud from '../../vis/OrderedWordCloud';
 import WordSelectWrapper, { LEFT, RIGHT } from './WordSelectWrapper';
 
 const localMessages = {
@@ -17,6 +15,7 @@ const localMessages = {
   centerTitle: { id: 'explorer.comparativeWords.center', defaultMessage: 'Word used in both' },
   sideTitle: { id: 'explorer.comparativeWords.right', defaultMessage: 'Words unique to {name} in the top 100 words in the sampled stories' },
   downloadCsv: { id: 'explorer.entities.downloadCsv', defaultMessage: 'Download { name } word count comparison CSV' },
+  error: { id: 'explorer.comparativeWords.error', defaultMessage: 'Error loading comparison' },
 };
 
 class QueryWordComparisonResultsContainer extends React.Component {
@@ -54,60 +53,53 @@ class QueryWordComparisonResultsContainer extends React.Component {
 
   render() {
     const { queries, results, handleWordCloudClick } = this.props;
-    if (results && results.length > 0 && !this.state.rightQuery) {
-      return (
-        <Grid>
-          <Row>
-            <Col lg={8}>
-              <h2><FormattedMessage {...localMessages.title} /></h2>
-              <OrderedWordCloud
-                words={results[0].results}
-                // alreadyNormalized
-                width={700}
-              />
-            </Col>
-          </Row>
-        </Grid>
-      );
-    }
-    if (results && results.length > 1) {
-      let wordSelectorContent;
+    const { leftQuery, rightQuery } = this.state;
+    let wordClouds;
+    let wordSelectorContent;
+    if (results && Object.keys(results).length > 1) {
       // only show selector if more than two queries
       if (queries.length > 2) {
         wordSelectorContent = (
           <WordSelectWrapper
             queries={queries}
             onQuerySelectionChange={this.handleQuerySelectionChange}
-            leftQuery={this.state.leftQuery}
-            rightQuery={this.state.rightQuery}
+            leftQuery={leftQuery}
+            rightQuery={rightQuery}
           />
         );
       }
-      return (
-        <div className="comparison-summary">
-          <Grid>
-            <Row>
-              <Col lg={12}>
-                <h2><FormattedMessage {...localMessages.title} /></h2>
-                {wordSelectorContent}
-                <ComparativeOrderedWordCloud
-                  leftWords={results[getUidIndex(this.state.leftQuery.uid, results)].results}
-                  rightWords={results[getUidIndex(this.state.rightQuery.uid, results)].results}
-                  leftTextColor={this.state.leftQuery.color}
-                  rightTextColor={this.state.rightQuery.color}
-                  textColor={getBrandDarkColor()}
-                  onWordClick={handleWordCloudClick}
-                  leftTitleMsg={<FormattedMessage {...localMessages.sideTitle} values={{ name: this.state.leftQuery.label }} />}
-                  centerTitleMsg={<FormattedMessage {...localMessages.centerTitle} />}
-                  rightTitleMsg={<FormattedMessage {...localMessages.sideTitle} values={{ name: this.state.rightQuery.label }} />}
-                />
-              </Col>
-            </Row>
-          </Grid>
-        </div>
+      wordClouds = (
+        <>
+          {wordSelectorContent}
+          <ComparativeOrderedWordCloud
+            leftWords={results[leftQuery.uid].results}
+            rightWords={results[rightQuery.uid].results}
+            leftTextColor={leftQuery.color}
+            rightTextColor={rightQuery.color}
+            textColor={getBrandDarkColor()}
+            onWordClick={handleWordCloudClick}
+            leftTitleMsg={<FormattedMessage {...localMessages.sideTitle} values={{ name: this.state.leftQuery.label }} />}
+            centerTitleMsg={<FormattedMessage {...localMessages.centerTitle} />}
+            rightTitleMsg={<FormattedMessage {...localMessages.sideTitle} values={{ name: this.state.rightQuery.label }} />}
+          />
+        </>
       );
+    } else {
+      wordClouds = <FormattedMessage {...localMessages.error} />;
     }
-    return <div>Error</div>;
+    return (
+      <div className="comparison-summary">
+        <Grid>
+          <Row>
+            <Col lg={12}>
+              <h2><FormattedMessage {...localMessages.title} /></h2>
+              {wordSelectorContent}
+              {wordClouds}
+            </Col>
+          </Row>
+        </Grid>
+      </div>
+    );
   }
 }
 
