@@ -33,7 +33,7 @@ const CountryCollectionListContainer = ({ collectionsByCountry, user }) => (
             <div>
               <CollectionList
                 collections={countryInfo.collections}
-                title={countryInfo.country.name}
+                title={countryInfo.country && countryInfo.country.name ? countryInfo.country.name : ''}
                 user={user}
                 dataCard={false}
               />
@@ -57,7 +57,7 @@ CountryCollectionListContainer.propTypes = {
 const mapStateToProps = state => ({
   fetchStatus: state.sources.collections.geo.fetchStatus,
   user: state.user,
-  collectionsByCountry: state.sources.collections.geo.byCountry,
+  collectionsByCountry: state.sources.collections.geo.list,
 });
 
 const fetchAsyncData = dispatch => dispatch(fetchGeoCollectionsByCountry());
