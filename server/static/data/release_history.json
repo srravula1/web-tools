@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "date": "2020-07-30",
+      "version": "v3.15.3",
+      "notes": [
+        {
+          "apps": [ "sources" ],
+          "type": "Fix",
+          "note": "Browse geographic collections page unavailable"
+        }
+      ]
+    },
+    {
       "date": "2020-07-23",
       "version": "v3.15.2",
       "notes": [
