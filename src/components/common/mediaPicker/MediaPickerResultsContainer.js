@@ -10,11 +10,11 @@ import FeaturedFavoriteGeoSearchResultsContainer from './results/FeaturedFavorit
 import { VALID_COLLECTION_IDS } from '../../../lib/tagUtil';
 
 class MediaPickerResultsContainer extends React.Component {
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     this.correlateSelection(this.props);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  getDerivedStateFromProps(nextProps) {
     if (nextProps.selectedMediaQueryType !== this.props.selectedMediaQueryType) {
       this.updateMediaQuery({ type: nextProps.selectedMediaQueryType, tags: {}, keyword: '' });
     }
