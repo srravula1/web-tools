@@ -26,7 +26,7 @@ class AppContainer extends React.Component {
     open: false,
   };
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  getDerivedStateFromProps(nextProps) {
     const { feedback } = this.props;
     if (nextProps.feedback.message !== feedback.message) {
       this.setState({ open: true });
