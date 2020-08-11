@@ -22,15 +22,20 @@ const localMessages = {
 };
 
 class AppContainer extends React.Component {
-  state = {
-    open: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      feedback: {},
+    };
+  }
 
-  getDerivedStateFromProps(nextProps) {
-    const { feedback } = this.props;
-    if (nextProps.feedback.message !== feedback.message) {
-      this.setState({ open: true });
+  static getDerivedStateFromProps(nextState, prevState) {
+    const { feedback } = prevState;
+    if (nextState.feedback.message !== feedback.message) {
+      return { feedback: nextState.feedback, open: true };
     }
+    else return null;
   }
 
   handleClose = () => {

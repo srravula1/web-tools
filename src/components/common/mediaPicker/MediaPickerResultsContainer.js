@@ -14,15 +14,15 @@ class MediaPickerResultsContainer extends React.Component {
     this.correlateSelection(this.props);
   }
 
-  getDerivedStateFromProps(nextProps) {
-    if (nextProps.selectedMediaQueryType !== this.props.selectedMediaQueryType) {
-      this.updateMediaQuery({ type: nextProps.selectedMediaQueryType, tags: {}, keyword: '' });
+  componentDidUpdate(prevProps) {
+    if (this.props.selectedMediaQueryType !== prevProps.selectedMediaQueryType) {
+      this.updateMediaQuery({ type: this.props.selectedMediaQueryType, tags: {}, keyword: '' });
     }
-    if (nextProps.selectedMedia !== this.props.selectedMedia
+    if (this.props.selectedMedia !== prevProps.selectedMedia
       // if the results have changed from a keyword entry, we need to update the UI
-      || (nextProps.sourceResults && nextProps.sourceResults.lastFetchSuccess !== this.props.sourceResults.lastFetchSuccess)
-      || (nextProps.collectionResults && nextProps.collectionResults.lastFetchSuccess !== this.props.collectionResults.lastFetchSuccess)) {
-      this.correlateSelection(nextProps);
+      || (this.props.sourceResults && this.props.sourceResults.lastFetchSuccess !== prevProps.sourceResults.lastFetchSuccess)
+      || (this.props.collectionResults && this.props.collectionResults.lastFetchSuccess !== prevProps.collectionResults.lastFetchSuccess)) {
+      this.correlateSelection(this.props);
     }
   }
 

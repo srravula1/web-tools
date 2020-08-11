@@ -18,9 +18,9 @@ class FaqItem extends React.Component {
     }
   }
 
-  getDerivedStateFromProps(nextProps) {
-    if (nextProps.expanded) {
-      this.setState({ showAnswer: nextProps.expanded });
+  static getDerivedStateFromProps(nextState) {
+    if (nextState.expanded) {
+      this.setState({ showAnswer: nextState.expanded });
     }
   }
 

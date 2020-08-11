@@ -26,39 +26,25 @@ class MediaPickerDialog extends React.Component {
     open: false,
   };
 
-  componentDidMount() { // only called on intial parent load -eg not when dialog pops up
-    if (this.state.open) {
-      window.scrollTo(0, 0);
-    }
-  }
-
-  getDerivedStateFromProps(nextProps) {
+  static getDerivedStateFromProps(nextState, prevState) {
     // select the media so we fill the reducer with the previously selected media
-    const { initMedia, handleInitialSelectionOfMedia } = this.props;
-    if (JSON.stringify(initMedia) !== JSON.stringify(nextProps.initMedia)) {
-      if (nextProps.initMedia) { // expects an array of media from caller
-        handleInitialSelectionOfMedia(nextProps.initMedia);
+    const { initMedia } = prevState;
+    if (JSON.stringify(initMedia) !== JSON.stringify(nextState.initMedia)) {
+      if (nextState.initMedia) { // expects an array of media from caller
+        nextState.handleInitialSelectionOfMedia(nextState.initMedia);
       }
     }
-    if ((nextProps.selectedMedia !== this.props.selectedMedia)
-      || (nextProps.selectedMedia && this.props.selectedMedia && nextProps.selectedMedia.length !== this.props.selectedMedia.length)) {
-      // if the results have changed from a keyword entry, we need to update the UI
-      this.shouldComponentUpdate(nextProps);
-    }
+    return nextState;
   }
 
-  shouldComponentUpdate(nextProps) {
-    if ((nextProps.selectedMedia !== this.props.selectedMedia)
-      || (nextProps.selectedMedia && this.props.selectedMedia && nextProps.selectedMedia.length !== this.props.selectedMedia.length)) {
-      // if the results have changed from a keyword entry, we need to update the UI
-      return true;
-    }
+  shouldComponentUpdate() {
     return true;
   }
 
-  componentWillUnmount() {
-    const { reset } = this.props;
-    reset();
+  componentDidUpdate() { // only called on intial parent load -eg not when dialog pops up
+    if (this.state.open) {
+      window.scrollTo(0, 0);
+    }
   }
 
   handleModifyClick = (initMedia) => {
@@ -89,6 +75,11 @@ class MediaPickerDialog extends React.Component {
       setQueryFormChildDialogOpen(false);
     }
   };
+
+  componentWillUnmount() {
+    const { reset } = this.props;
+    reset();
+  }
 
   render() {
     const { initMedia } = this.props;
