@@ -199,9 +199,17 @@ def index():
         maintenance_mode = config.get('MAINTENANCE_MODE')
     except ConfigException:
         maintenance_mode = 0
+
+    try:
+        system_warning = config.get('SYSTEM_WARNING')
+    except ConfigException:
+        system_warning = ""
+
     return render_template('index.html',
                            cookie_domain=config.get('COOKIE_DOMAIN'),
-                           maintenance_mode=maintenance_mode)
+                           maintenance_mode=maintenance_mode,
+                           system_warning=system_warning,
+                           )
 
 
 # now load in the appropriate view endpoints, after the app has been initialized
