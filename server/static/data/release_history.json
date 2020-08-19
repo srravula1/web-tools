@@ -1,6 +1,37 @@
 {
   "releases": [
     {
+      "date": "2020-08-12",
+      "version": "v3.16.0",
+      "notes": [
+        {
+          "apps": [ "sources" ],
+          "type": "Fix",
+          "note": "Removed duplicate sources from geographic collections page"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Updated featured collections in media picker"
+        },
+        {
+          "apps": [ "topics", "sources", "explorer" ],
+          "type": "New",
+          "note": "Updated featured partisan collections to 2019 versions"
+        },
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Added 2019 Partisan subtopic creation"
+        },
+        {
+          "apps": [ "topics", "sources", "explorer" ],
+          "type": "Fix",
+          "note": "Forward to destination after login"
+        }
+      ]
+    },
+    {
       "date": "2020-07-30",
       "version": "v3.15.3",
       "notes": [
