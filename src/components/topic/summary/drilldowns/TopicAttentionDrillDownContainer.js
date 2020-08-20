@@ -90,7 +90,7 @@ const fetchAsyncData = (dispatch, { topicId, timespan, filters }) => {
       ...filters,
       sort: 'inlink',
       limit: 10,
-      timespansId: timespan.timespans_id,
+      timespans_id: timespan.timespans_id,
       uid: 'summaryDrillDown',
     }));
     // dispatch(fetchQueryPerDateTopWords({ ...dataPoint }));
