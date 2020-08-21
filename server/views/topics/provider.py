@@ -70,7 +70,7 @@ def _parse_stories_optional_arguments():
     """
     return _parse_optional_args(
         # these ones are options to the story CSV download helper
-        ['storyLimit', 'storyTags', 'mediaMetadata', 'platformUrlShares', 'socialShares']
+        ['storyLimit', 'storyTags', 'mediaMetadata', 'platformUrlShares', 'socialShares', 'timespanId']
     )
 
 
