@@ -11,6 +11,7 @@ import server.util.wordembeddings as wordembeddings
 from server.auth import user_mediacloud_client, user_admin_mediacloud_client, user_mediacloud_key
 from server.util.request import filters_from_args
 from server.util.api_helper import add_missing_dates_to_split_story_counts
+from server.views.topics import stories_args_from_request
 from server.views.topics.foci.focalsets import is_url_sharing_focal_set
 import server.views.apicache as base_apicache
 
@@ -21,7 +22,7 @@ WORD_COUNT_DOWNLOAD_COLUMNS = ['term', 'stem', 'count', 'sample_size', 'ratio']
 # the parameters actually accepted by the lower-level topicStoryList API call
 TOPIC_STORY_LIST_API_PARAMS = [
     'snapshots_id', 'timespans_id', 'foci_id', 'q', 'sort', 'limit', 'linkId',
-    'linkToMediaId', 'linkFromMediaId', 'linkToStoriesId', 'linkFromStoriesId'
+    'linkToMediaId', 'linkFromMediaId', 'link_to_stories_id', 'link_from_stories_id'
 ]
 
 
@@ -108,18 +109,8 @@ def _cached_story_list(user_mc_key, q, rows):
 
 
 def topic_story_list(user_mc_key, topics_id, **kwargs):
-    # Return sorted story list based on filters.
-    snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
     # these are the arguments support by the low-level API method
-    merged_args = {
-        'snapshots_id': snapshots_id,
-        'timespans_id': timespans_id,
-        'foci_id': foci_id,
-        'q': q,
-        'sort': request.args.get('sort'),
-        'limit': request.args.get('limit'),
-        'link_id': request.args.get('linkId'),
-    }
+    merged_args = stories_args_from_request(request.args)
     # make sure not to add in other parameters from kwargs that aren't supported by the API method
     for k in TOPIC_STORY_LIST_API_PARAMS:
         if (k in merged_args) and (k in kwargs):

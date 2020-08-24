@@ -13,7 +13,7 @@ from server import app, cliff
 from server.auth import user_mediacloud_key, user_mediacloud_client
 from server.cache import cache
 from server.util.request import api_error_handler, filters_from_args
-from server.views.topics import concatenate_query_for_solr, _parse_collection_ids, _parse_media_ids
+from server.views.topics import stories_args_from_request, concatenate_query_for_solr, _parse_collection_ids, _parse_media_ids
 from server.util.tags import TAG_SPIDERED_STORY
 
 logger = logging.getLogger(__name__)
@@ -66,15 +66,10 @@ def stream_story_list_csv(user_key, filename, topic, **kwargs):
     include_all_url_shares = kwargs['include_all_url_shares'] if 'include_all_url_shares' in kwargs else False
     params = kwargs.copy()
 
-    snapshots_id, timespans_id, foci_id, q = filters_from_args(request.args)
-    merged_args = {
-        'timespans_id': timespans_id,
-        'snapshots_id': snapshots_id,
-        'foci_id': foci_id,
-        'q': q,
-        'sort': request.args['sort'] if 'sort' in request.args else None,
-    }
+    merged_args = stories_args_from_request(request.args)
     params.update(merged_args)
+    # allows helper to page through the results
+    params.pop("link_id")
 
     # do a check to see if the user has added in a real query or not
     if 'q' in params:
