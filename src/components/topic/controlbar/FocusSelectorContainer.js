@@ -14,7 +14,7 @@ const localMessages = {
 };
 
 class FocusSelectorContainer extends React.Component {
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { setCustomContent, selectedFocus } = this.props;
     if (setCustomContent && selectedFocus) {
       setCustomContent(

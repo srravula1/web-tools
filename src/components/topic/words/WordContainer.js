@@ -19,16 +19,17 @@ const localMessages = {
 
 class WordContainer extends React.Component {
   /* not an async */
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { saveParamsToStore } = this.props;
     saveParamsToStore(this.props, this);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.params.word !== this.props.params.word) {
-      const { saveParamsToStore } = nextProps;
-      saveParamsToStore(nextProps, this);
+  static getDerivedStateFromProps(nextState) {
+    if (nextState.params.word !== this.props.params.word) {
+      const { saveParamsToStore } = nextState;
+      saveParamsToStore(nextState, this);
     }
+    return nextState;
   }
 
   render() {
