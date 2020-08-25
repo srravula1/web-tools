@@ -57,7 +57,7 @@ def topic_word(topics_id, word):
     return jsonify(response)
 
 
-@app.route('/api/topics/<topics_id>/words/<word>/sample-usage', methods=['GET'])
+@app.route('/api/topics/<_topics_id>/words/<word>/sample-usage', methods=['GET'])
 @flask_login.login_required
 @api_error_handler
 def topic_word_usage_sample(_topics_id, word):
