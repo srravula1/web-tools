@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "date": "2020-08-25",
+      "version": "v3.16.4",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Word sample usage"
+        }
+      ]
+    },
+    {
       "date": "2020-08-24",
       "version": "v3.16.3",
       "notes": [
