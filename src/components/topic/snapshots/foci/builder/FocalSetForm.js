@@ -26,7 +26,7 @@ const localMessages = {
 };
 
 class FocalSetForm extends React.Component {
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { change, focalTechnique } = this.props;
     const { formatMessage } = this.props.intl;
     // set smart-looking default set name/description based on the focal technique currently selected

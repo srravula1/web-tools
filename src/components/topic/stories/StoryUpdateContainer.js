@@ -17,10 +17,10 @@ const localMessages = {
 };
 
 class StoryUpdateContainer extends React.Component {
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  static getDerivedStateFromProps(nextState) {
     const { refetchAsyncData } = this.props;
-    if (nextProps.storiesId !== this.props.storiesId) {
-      refetchAsyncData(nextProps);
+    if (nextState.storiesId !== this.props.storiesId) {
+      refetchAsyncData(nextState);
     }
   }
 

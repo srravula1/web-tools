@@ -11,21 +11,24 @@ const localMessages = {
 };
 
 class QuerySelector extends React.Component {
-  state = {
-    focused: false,
-    value: '',
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      focused: false,
+      value: '',
+    };
+  }
 
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     this.setState({ value: this.props.query || '' });
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { query } = this.props;
-    if (nextProps.query !== query) {
+  static getDerivedStateFromProps(nextState, prevState) {
+    if (nextState.query !== prevState.query) {
       // if filters are open and user deletes chip, gotta remove the query here
-      this.setState({ value: nextProps.query });
+      this.setState({ value: nextState.query });
     }
+    return nextState;
   }
 
   valueHasChanged = () => {
