@@ -1,6 +1,42 @@
 {
   "releases": [
     {
+<<<<<<< HEAD
+=======
+      "date": "2020-08-24",
+      "version": "v3.16.3",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Filter top stories by link when drilling into specific story"
+        }
+      ]
+    },
+    {
+      "date": "2020-08-21",
+      "version": "v3.16.2",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Display time filtered top stories when clicking on attention chart"
+        }
+      ]
+    },
+    {
+      "date": "2020-08-20",
+      "version": "v3.16.1",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Top stories CSV download"
+        }
+      ]
+    },
+    {
+>>>>>>> 8d1c2612fad26360fa6e9d12482a858197cdce56
       "date": "2020-08-12",
       "version": "v3.16.0",
       "notes": [

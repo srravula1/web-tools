@@ -3,10 +3,9 @@ import datetime
 import mediacloud.api
 import re
 
-
-from server import mc
-from server.auth import is_user_logged_in
 from server.util.csv import SOURCE_LIST_CSV_METADATA_PROPS
+from server.util.request import filters_from_args
+
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +93,18 @@ def concatenate_solr_dates(start_date, end_date):
         datetime.datetime.strptime(end_date, '%Y-%m-%d').date())
 
     return publish_date
+
+
+def stories_args_from_request(request_args):
+    snapshots_id, timespans_id, foci_id, q = filters_from_args(request_args)
+    return {
+        'snapshots_id': snapshots_id,
+        'timespans_id': timespans_id,
+        'foci_id': foci_id,
+        'q': q,
+        'sort': request_args.get('sort'),
+        'limit': request_args.get('limit'),
+        'link_id': request_args.get('linkId'),
+        'link_to_stories_id': request_args.get('linkToStoriesId'),
+        'link_from_stories_id': request_args.get('linkFromStoriesId'),
+    }

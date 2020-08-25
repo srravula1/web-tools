@@ -70,7 +70,7 @@ def _parse_stories_optional_arguments():
     """
     return _parse_optional_args(
         # these ones are options to the story CSV download helper
-        ['storyLimit', 'storyTags', 'mediaMetadata', 'platformUrlShares', 'socialShares']
+        ['storyLimit', 'storyTags', 'mediaMetadata', 'platformUrlShares', 'socialShares', 'timespanId']
     )
 
 
@@ -90,7 +90,6 @@ def topic_provider_stories_csv(topics_id):
     optional_args = _parse_stories_optional_arguments()
     user_mc = user_mediacloud_client()
     topic = user_mc.topic(topics_id)
-    del optional_args['link_id']  # we do this do make sure this helper can page through the results
     return stream_story_list_csv(user_mediacloud_key(), 'stories', topic, **optional_args)
 
 
