@@ -16,21 +16,20 @@ const localMessages = {
 
 
 class FeaturedFavoriteGeoSearchResultsContainer extends React.Component {
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     this.correlateSelection(this.props);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    // PICK_FEATURED
-    if (nextProps.selectedMediaQueryType !== this.props.selectedMediaQueryType) {
-      this.updateMediaQuery({ type: nextProps.selectedMediaQueryType });
+  componentDidUpdate(prevProps) {
+    if (this.props.selectedMediaQueryType !== prevProps.selectedMediaQueryType) {
+      this.updateMediaQuery({ type: this.props.selectedMediaQueryType, tags: {}, keyword: '' });
     }
-    if (nextProps.selectedMedia !== this.props.selectedMedia
+    if (this.props.selectedMedia !== prevProps.selectedMedia
       // if the results have changed from a keyword entry, we need to update the UI
-      || (nextProps.featured && nextProps.featured.lastFetchSuccess !== this.props.featured.lastFetchSuccess)
-      || (nextProps.favoritedCollections && nextProps.favoritedCollections.lastFetchSuccess !== this.props.favoritedCollections.lastFetchSuccess)
-      || (nextProps.favoritedSources && nextProps.favoritedSources.lastFetchSuccess !== this.props.favoritedSources.lastFetchSuccess)) {
-      this.correlateSelection(nextProps);
+      || (this.props.featured && this.props.featured.lastFetchSuccess !== prevProps.featured.lastFetchSuccess)
+      || (this.props.favoritedCollections && this.props.favoritedCollections.lastFetchSuccess !== prevProps.favoritedCollections.lastFetchSuccess)
+      || (this.props.favoritedSources && this.props.favoritedSources.lastFetchSuccess !== prevProps.favoritedSources.lastFetchSuccess)) {
+      this.correlateSelection(this.props);
     }
   }
 
