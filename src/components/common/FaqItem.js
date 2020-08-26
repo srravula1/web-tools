@@ -11,18 +11,13 @@ class FaqItem extends React.Component {
     showAnswer: false,
   };
 
-  UNSAFE_componentWillMount = () => {
-    const { expanded } = this.props;
-    if (expanded) {
-      this.setState({ showAnswer: expanded });
+  static getDerivedStateFromProps(nextState) {
+    if (nextState.expanded) {
+      this.setState({ showAnswer: nextState.expanded });
     }
+    return nextState;
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.expanded) {
-      this.setState({ showAnswer: nextProps.expanded });
-    }
-  }
 
   toggleVisible = (evt) => {
     evt.preventDefault();
