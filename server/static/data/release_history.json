@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "date": "2020-08-26",
+      "version": "v3.16.5",
+      "notes": [
+        {
+          "apps": [ "sources" ],
+          "type": "Fix",
+          "note": "Modify sources"
+        }
+      ]
+    },
+    {
       "date": "2020-08-25",
       "version": "v3.16.4",
       "notes": [
