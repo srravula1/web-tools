@@ -7,21 +7,14 @@ import { initializePreviouslySelectedMedia, clearSelectedMedia, resetMetadataSho
 function composeMediaPickerSidebarContainer() {
   return (ChildComponent) => {
     class MediaPickerSidebarContainer extends React.Component {
-      constructor(props) {
-        super(props);
-        this.state = {
-          initMedia: {},
-        };
-      }
-      static getDerivedStateFromProps(nextState, prevState) {
-        // select the media so we fill the reducer with the previously selected media
-        const { initMedia } = prevState;
-        if (JSON.stringify(initMedia) !== JSON.stringify(nextState.initMedia)) {
-          if (nextState.initMedia) { // expects an array of media from caller
-            nextState.handleInitialSelectionOfMedia(nextState.initMedia);
+      componentDidUpdate(prevProps) {
+        // compare and select incoming media
+        const { initMedia } = this.props;
+        if (JSON.stringify(initMedia) !== JSON.stringify(prevProps.initMedia)) {
+          if (initMedia) { // expects an array of media from caller
+            this.props.handleInitialSelectionOfMedia(initMedia);
           }
         }
-        return nextState;
       }
 
       componentWillUnmount() {

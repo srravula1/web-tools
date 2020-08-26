@@ -61,7 +61,7 @@ class TopicStoryTable extends React.Component {
 
   render() {
     const { stories, showTweetCounts, onChangeFocusSelection, topicId, maxTitleLength, usingUrlSharingSubtopic, hasAUrlSharingFocalSet, intl } = this.props;
-    let urlSharingSubtopicNames = null;
+    let urlSharingSubtopicNames = [];
     if (hasAUrlSharingFocalSet && (stories.length > 0)) {
       // intuit a list of the subtopics from the url sharing counts on the first story
       // alternatively, we could pass in the subtopics and use those, but this information is already here
@@ -71,7 +71,7 @@ class TopicStoryTable extends React.Component {
       <div className="story-table">
         <table>
           <tbody>
-            <tr>
+            <tr key={0} >
               <th><FormattedMessage {...messages.storyTitle} /></th>
               <th><FormattedMessage {...messages.media} /></th>
               <th>

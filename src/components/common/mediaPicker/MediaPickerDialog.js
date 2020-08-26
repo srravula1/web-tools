@@ -47,17 +47,11 @@ class MediaPickerDialog extends React.Component {
     }
   }
 
-  handleModifyClick = (initMedia) => {
-    const { setQueryFormChildDialogOpen, handleInitialSelectionOfMedia } = this.props;
-    this.setState({ open: true });
-    handleInitialSelectionOfMedia(initMedia); // push into selectedMedia in store
+  componentWillUnmount() {
+    const { reset } = this.props;
+    reset();
+  }
 
-    // document.body.style.overflow = 'hidden';
-    if (setQueryFormChildDialogOpen) { // way to tell parent that a dialog is open - focus issue stuff
-      setQueryFormChildDialogOpen(true);
-    }
-    // need to set body to overflow: hidden somehow...
-  };
 
   handleRemoveDialogClose = (confirm) => {
     const { onConfirmSelection, selectedMedia, setQueryFormChildDialogOpen, reset } = this.props;
@@ -76,10 +70,17 @@ class MediaPickerDialog extends React.Component {
     }
   };
 
-  componentWillUnmount() {
-    const { reset } = this.props;
-    reset();
-  }
+  handleModifyClick = (initMedia) => {
+    const { setQueryFormChildDialogOpen, handleInitialSelectionOfMedia } = this.props;
+    this.setState({ open: true });
+    handleInitialSelectionOfMedia(initMedia); // push into selectedMedia in store
+
+    // document.body.style.overflow = 'hidden';
+    if (setQueryFormChildDialogOpen) { // way to tell parent that a dialog is open - focus issue stuff
+      setQueryFormChildDialogOpen(true);
+    }
+    // need to set body to overflow: hidden somehow...
+  };
 
   render() {
     const { initMedia } = this.props;

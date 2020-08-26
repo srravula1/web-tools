@@ -19,16 +19,12 @@ class QuerySelector extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.setState({ value: this.props.query || '' });
-  }
-
   static getDerivedStateFromProps(nextState, prevState) {
-    if (nextState.query !== prevState.query) {
+    if (prevState.query && nextState.query !== prevState.query) {
       // if filters are open and user deletes chip, gotta remove the query here
-      this.setState({ value: nextState.query });
+      return { value: nextState.query };
     }
-    return nextState;
+    return null;
   }
 
   valueHasChanged = () => {

@@ -18,7 +18,6 @@ class FaqItem extends React.Component {
     return nextState;
   }
 
-
   toggleVisible = (evt) => {
     evt.preventDefault();
     this.setState(prevState => ({ showAnswer: !prevState.showAnswer }));

@@ -57,13 +57,12 @@ class StoryContainer extends React.Component {
     selectedTab: 0,
   };
 
-  static getDerivedStateFromProps(nextState) {
+  componentWillUpdate(prevProps) {
     // select the media so we fill the reducer with the previously selected media
     const { refetchAsyncData } = this.props;
-    if (nextState.storiesId !== this.props.storiesId) {
-      refetchAsyncData(nextState);
+    if (prevProps.storiesId !== this.props.storiesId) {
+      refetchAsyncData(this.props.storiesId);
     }
-    return nextState;
   }
 
   render() {

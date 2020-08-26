@@ -24,12 +24,12 @@ class WordContainer extends React.Component {
     saveParamsToStore(this.props, this);
   }
 
-  static getDerivedStateFromProps(nextState) {
-    if (nextState.params.word !== this.props.params.word) {
-      const { saveParamsToStore } = nextState;
-      saveParamsToStore(nextState, this);
+  componentDidUpdate(prevProps) {
+    // select the media so we fill the reducer with the previously selected media
+    const { saveParamsToStore } = this.props;
+    if (prevProps.params.word !== this.props.params.word) {
+      saveParamsToStore(this.props.params.word, this);
     }
-    return nextState;
   }
 
   render() {
