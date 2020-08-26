@@ -19,7 +19,7 @@ def api_source_feed(media_id):
     return jsonify({'results': feed_list, 'count': feed_count})
 
 
-@app.route('/api/sources/<media_id>/feeds/<feed_id>/single', methods=['GET'])
+@app.route('/api/sources/<_media_id>/feeds/<feed_id>/single', methods=['GET'])
 @flask_login.login_required
 @api_error_handler
 def feed_details(_media_id, feed_id):
