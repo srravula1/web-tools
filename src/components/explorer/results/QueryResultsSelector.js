@@ -10,15 +10,18 @@ import { queryChangedEnoughToUpdate /* , ensureSafeResults */, ensureSafeTabInde
 function withQueryResults(fetchResults, extraPropertiesForServer) {
   const innerWithQueryResults = (ChildComponent) => {
     class QueryResultsSelector extends React.Component {
-      state = {
-        selectedQueryTabIndex: null,
-        selectedQueryUid: null,
-      };
+      constructor(props) {
+        super(props);
+        this.state = {
+          selectedQueryTabIndex: 0,
+          selectedQueryUid: null,
+        };
+      }
 
-      UNSAFE_componentWillMount = () => {
+      componentDidMount() {
         // make sure that the tabIndex and UID are set before rendering the first time
-        if (this.state.selectedQueryTabIndex === null) {
-          this.getUidFromTabSelection(0);
+        if (this.state.selectedQueryUid === null) {
+          this.getUidFromTabSelection(this.state.selectedQueryTabIndex);
         }
       }
 
@@ -26,12 +29,15 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
         const { results, queries, shouldUpdate } = this.props;
         // ask the child if internal repainting is needed
         const defaultShouldUpdate = queryChangedEnoughToUpdate(queries, nextProps.queries, results, nextProps.results);
+        const childShouldUpdate = (shouldUpdate && shouldUpdate(nextProps));
+        return childShouldUpdate || defaultShouldUpdate;
+      }
+
+      componentDidUpdate(nextProps) {
         const tabIndexNotValid = (nextProps.queries.length - 1) < this.state.selectedQueryTabIndex;
         if (tabIndexNotValid) {
           this.setState({ selectedQueryTabIndex: nextProps.queries.length - 1 });
         }
-        const childShouldUpdate = (shouldUpdate && shouldUpdate(nextProps));
-        return childShouldUpdate || defaultShouldUpdate;
       }
 
       getUidFromTabSelection(idx) {
@@ -45,9 +51,9 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
         const { queries /* , results */ } = this.props;
         // remove deleted stuff and sort queries and results correctly before sending down to child
         const sortedSafeQueries = ensureSafeSortedQueries(queries);
-        // const safeResults = ensureSafeResults(sortedSafeQueries, results);
         const safeIndex = ensureSafeTabIndex(sortedSafeQueries, this.state.selectedQueryTabIndex);
         const tabSelector = <TabSelector onViewSelected={idx => this.getUidFromTabSelection(idx)} tabLabels={sortedSafeQueries} />;
+        const selectedQuery = sortedSafeQueries[safeIndex];
         return (
           <div className="query-results-selector">
             <ChildComponent
@@ -55,8 +61,7 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
               safeSortedQueries={sortedSafeQueries}
               selectedTabIndex={safeIndex}
               selectedQueryUid={this.state.selectedQueryUid}
-              selectedQuery={sortedSafeQueries[safeIndex]}
-
+              selectedQuery={selectedQuery}
               tabSelector={tabSelector}
             />
           </div>

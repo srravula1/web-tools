@@ -25,11 +25,15 @@ const localMessages = {
 function composeUrlBasedQueryContainer() {
   return (ChildComponent) => {
     class UrlBasedQueryContainer extends React.Component {
-      state = {
-        queryInStore: false,
-      };
 
-      UNSAFE_componentWillMount() {
+      constructor(props) {
+        super(props);
+        this.state = {
+          queryInStore: false,
+        };
+      }
+
+      componentDidMount() {
         const { location } = this.props;
         // if from homepage, allow automagic, if from URL, do not...
         const autoMagic = location.query.auto === 'true';
@@ -38,10 +42,8 @@ function composeUrlBasedQueryContainer() {
         this.updateQueriesFromLocation(location, autoMagic);
       }
 
-      UNSAFE_componentWillReceiveProps(nextProps) {
+      componentDidUpdate(nextProps) {
         const { location, lastSearchTime, updateUrl } = this.props;
-        // console.log('new props');
-        // if URL has been updated by hand, reparse and store
         if ((nextProps.location.pathname !== location.pathname) && (lastSearchTime === nextProps.lastSearchTime)) {
           this.setState({ queryInStore: false }); // show spinner while parsing and loading query
           // console.log('  url change');
@@ -54,16 +56,9 @@ function composeUrlBasedQueryContainer() {
             // console.log('  got media info from server, ready!');
             this.setState({ queryInStore: true }); // mark that the parsing process has finished
           }
-          if (nextProps.queries.filter(q => q.sources.length > 0).length === 0 && nextProps.queries.filter(q => q.collections.length > 0).length === 0 && nextProps.queries.filter(q => q.searches.length > 0).length === 0) {
-            // console.log('no sources or collections or searches');
-            this.setState({ queryInStore: true });
-            updateUrl(nextProps.queries);
-          }
         } else if (lastSearchTime !== nextProps.lastSearchTime) {
           // console.log('got a new search time');
           updateUrl(nextProps.queries);
-        } else {
-          // console.log('  other change');
         }
       }
 
