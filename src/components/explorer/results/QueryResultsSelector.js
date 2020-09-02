@@ -33,12 +33,12 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
         return childShouldUpdate || defaultShouldUpdate;
       }
 
-      componentDidUpdate(nextProps) {
+      /* componentDidUpdate(nextProps) {
         const tabIndexNotValid = (nextProps.queries.length - 1) < this.state.selectedQueryTabIndex;
         if (tabIndexNotValid) {
           // this.setState({ selectedQueryTabIndex: nextProps.queries.length - 1 });
         }
-      }
+      } */
 
       getUidFromTabSelection(idx) {
         const { queries } = this.props;
@@ -50,8 +50,9 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
       render() {
         const { queries /* , results */ } = this.props;
 
-        if (this.state.selectedQueryTabIndex === null){
-          return <div></div>
+        if (this.state.selectedQueryTabIndex === null
+          || this.state.selectedQueryUid === null) {
+          return <div />;
         }
         // remove deleted stuff and sort queries and results correctly before sending down to child
         const sortedSafeQueries = ensureSafeSortedQueries(queries);
