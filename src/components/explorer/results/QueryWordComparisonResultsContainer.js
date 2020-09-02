@@ -20,8 +20,8 @@ const localMessages = {
 
 class QueryWordComparisonResultsContainer extends React.Component {
   state = {
-    leftQuery: undefined,
-    rightQuery: undefined,
+    leftQuery: null,
+    rightQuery: null,
   };
 
   componentDidMount() {
@@ -56,7 +56,7 @@ class QueryWordComparisonResultsContainer extends React.Component {
     const { leftQuery, rightQuery } = this.state;
     let wordClouds;
     let wordSelectorContent;
-    if (results && Object.keys(results).length > 1) {
+    if (results && Object.keys(results).length > 1 && leftQuery !== null && rightQuery !== null) {
       // only show selector if more than two queries
       if (queries.length > 2) {
         wordSelectorContent = (
