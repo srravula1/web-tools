@@ -36,7 +36,7 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
       componentDidUpdate(nextProps) {
         const tabIndexNotValid = (nextProps.queries.length - 1) < this.state.selectedQueryTabIndex;
         if (tabIndexNotValid) {
-          this.setState({ selectedQueryTabIndex: nextProps.queries.length - 1 });
+          // this.setState({ selectedQueryTabIndex: nextProps.queries.length - 1 });
         }
       }
 
@@ -49,6 +49,10 @@ function withQueryResults(fetchResults, extraPropertiesForServer) {
 
       render() {
         const { queries /* , results */ } = this.props;
+
+        if (this.state.selectedQueryTabIndex === null){
+          return <div></div>
+        }
         // remove deleted stuff and sort queries and results correctly before sending down to child
         const sortedSafeQueries = ensureSafeSortedQueries(queries);
         const safeIndex = ensureSafeTabIndex(sortedSafeQueries, this.state.selectedQueryTabIndex);
