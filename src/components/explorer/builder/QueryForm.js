@@ -63,12 +63,6 @@ class QueryForm extends React.Component {
     childDialogOpen: false,
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.selected !== this.props.selected) {
-      // this.textInputRef.saveRef(); comment out b/c this was only a focus setting anyway (that wasn't working very well)
-    }
-  }
-
   getAllActiveQueries = queries => (queries.filter(q => q.deleted !== true));
 
   setQueryFormChildDialogOpen = () => {

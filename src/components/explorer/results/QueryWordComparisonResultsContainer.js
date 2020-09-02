@@ -24,15 +24,15 @@ class QueryWordComparisonResultsContainer extends React.Component {
     rightQuery: undefined,
   };
 
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { queries } = this.props;
     this.setDefaultQueries(queries);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const { queries } = this.props;
-    if (nextProps.queries !== queries) {
-      this.setDefaultQueries(nextProps.queries);
+    if (prevProps.queries !== queries) {
+      this.setDefaultQueries(queries);
     }
   }
 

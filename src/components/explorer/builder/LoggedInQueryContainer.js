@@ -15,7 +15,7 @@ const localMessages = {
 };
 
 class LoggedInQueryContainer extends React.Component {
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { selectFirstQuery, queries } = this.props;
     // console.log(queries[0]);
     selectFirstQuery(queries[0]); // on first load select first by default so the builder knows which one to render in the form
