@@ -289,7 +289,6 @@ def topic_foci_list(user_mc_key, topics_id, focal_sets_id):
     return response
 
 
-@cache.cache_on_arguments()
 def topic_focal_sets_list(user_mc_key, topics_id, snapshots_id):
     # This needs user_mc_key in the function signature to make sure the caching is keyed correctly.
     user_mc = user_mediacloud_client(user_mc_key)
