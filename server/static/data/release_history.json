@@ -1,13 +1,34 @@
 {
   "releases": [
     {
-      "date": "2020-08-26",
-      "version": "v3.16.5",
+      "date": "2020-09-28",
+      "version": "v3.17.0",
       "notes": [
         {
           "apps": [ "sources" ],
           "type": "Fix",
           "note": "Modify sources"
+        }
+      ]
+    },
+    {
+      "date": "2020-08-26",
+      "version": "v3.16.5",
+      "notes": [
+        {
+          "apps": [ "sources" ],
+          "type": "New",
+          "note": "Renamed certain source metadata fields"
+        },
+        {
+          "apps": [ "sources" ],
+          "type": "Fix",
+          "note": "Source story count over time"
+        },
+        {
+          "apps": [ "sources" ],
+          "type": "Fix",
+          "note": "Pending sources show proposed collection"
         }
       ]
     },
