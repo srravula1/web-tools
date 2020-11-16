@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "date": "2020-11-16",
+      "version": "v3.18.0",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "New",
+          "note": "Topic details available on stats tab"
+        },
+        {
+          "apps": [ "explorer" ],
+          "type": "New",
+          "note": "Shortcuts for quick query comparisons"
+        }
+      ]
+    },
+    {
       "date": "2020-08-26",
       "version": "v3.16.5",
       "notes": [
