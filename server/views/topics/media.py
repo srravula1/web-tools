@@ -37,8 +37,6 @@ def media(topics_id, media_id):
 
 def stream_media_list_csv(user_mc_key, topic, filename, **kwargs):
     filename = topic['name'] + '-' + filename
-    # we have to make a separate call to the media info if the user wants to inlcude the media metadata
-    include_media_metadata = ('media_metadata' in kwargs) and (kwargs['media_metadata'] == '1')
     # if the focusId is a URL Sharing subtopic, then we have platform-specific post/author/channel share counts
     include_platform_url_shares = kwargs['include_platform_url_shares'] if 'include_platform_url_shares' in kwargs else False
     # if this topic includes platforms, then we have URL sharing counts (post/author/channel) for each platform
@@ -71,23 +69,25 @@ def stream_media_list_csv(user_mc_key, topic, filename, **kwargs):
             extra_columns += [prefix+'post_count', prefix+'channel_count', prefix+'author_count']
         props += extra_columns
         params['topic_seed_queries'] = topic_seed_queries
-    if include_media_metadata:
-        props += ['media_pub_country', 'media_pub_state', 'media_language', 'media_about_country', 'media_media_type']
     timestamped_filename = csv.safe_filename(filename)
     headers = {
         "Content-Disposition": "attachment;filename=" + timestamped_filename
     }
-    return Response(_stream_media_by_page(user_mc_key, topic['topics_id'], props, **params),
+    return Response(_stream_media_by_page(user_mc_key, topic['topics_id'], props,
+                                          csv.SOURCE_LIST_CSV_METADATA_PROPS, **params),
                     mimetype='text/csv; charset=utf-8', headers=headers)
 
 
-def _stream_media_by_page(user_mc_key, topics_id, props, **kwargs):
+def _stream_media_by_page(user_mc_key, topics_id, props, metadata_fields, **kwargs):
     yield ','.join(props) + '\n'  # first send the column names
     more_media = True
     while more_media:
         page = apicache.topic_media_list_page(user_mc_key, topics_id, **kwargs)
         page_media = page['media']
         for m in page_media:
+            for meta_field in metadata_fields:
+                metadata = m['metadata']
+                m[meta_field] = metadata[meta_field]['label'] if metadata[meta_field] is not None else None
             row = csv.dict2row(props, m)
             row_string = ','.join(row) + '\n'
             yield row_string
