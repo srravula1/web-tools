@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "date": "2020-11-17",
+      "version": "v3.18.1",
+      "notes": [
+        {
+          "apps": [ "topics" ],
+          "type": "Fix",
+          "note": "Download CSV of all Media should include metadata"
+        }
+      ]
+    },
+    {
       "date": "2020-11-16",
       "version": "v3.18.0",
       "notes": [
