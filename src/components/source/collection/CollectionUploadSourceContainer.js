@@ -16,7 +16,7 @@ const localMessages = {
   downloadEmpty: { id: 'collections.download.emptycsv', defaultMessage: 'Download a template in CSV format' },
   downloadFull: { id: 'collections.download.fullcsv', defaultMessage: 'Download current sources in CSV format' },
   helpText: { id: 'collection.upload.help.text',
-    defaultMessage: 'You can modify or add sources in batch using a CSV file.  First download the CSV template by clicking the Download button.  Then edit it, and upload it.',
+    defaultMessage: 'You can modify or add sources in batch using a CSV file.  First download the CSV template by clicking the Download button. Then edit it, and upload it.',
   },
   feedbackGood: { id: 'collection.upload.feedbackGood', defaultMessage: 'This upload was successful' },
   feedbackBad: { id: 'collection.upload.feedback.bad', defaultMessage: 'The upload failed ({message}).' },

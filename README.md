@@ -29,6 +29,7 @@ MongoDB:
 [Install MongoDb](https://docs.mongodb.com/manual/administration/install-community/):
 * `brew tap mongodb/brew`
 * `brew install mongodb-community@4.2`
+If you get a connection refused error, make sure you've started the server by running `brew services start mongodb-community@4.2` 
 
 Redis:
 [Install Redis](http://redis.io/)  We develop on OS X and install via the [HomeBrew package manager](http://brew.sh): `brew install redis`
@@ -71,6 +72,12 @@ Python linting rules can be found in `.pylintrc`. To run linting run:
 
 ```
 make lint.py
+```
+
+To run JS linting rules: 
+
+```
+npx eslint
 ```
 
 We use PyCharm and run linting on the flying using the 

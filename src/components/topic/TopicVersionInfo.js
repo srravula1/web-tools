@@ -28,7 +28,7 @@ const TopicVersionInfo = (props) => {
         <b><FormattedHTMLMessage {...messages.topicSourceCollectionsProp} /></b>:
       </p>
       {sourcesAndCollections.map(object => (
-        <SourceOrCollectionChip key={object.tags_id || object.media_id} object={object} />
+        <> < SourceOrCollectionChip key={object.tags_id || object.media_id} object={object}/> {','} </> //wrapping both 'components' in a fragments 
       ))}
     </>
   );
