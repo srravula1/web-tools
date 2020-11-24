@@ -25,7 +25,7 @@ const FocusSetSelectorContainer = (props) => {
   if (focalSets.length > 0) {
     content = (
       <Select
-        value={selectedFocalSetId === NO_FOCAL_SET_SELECTED ? focalSets[0].focal_sets_id : selectedFocalSetId }
+        value={selectedFocalSetId === NO_FOCAL_SET_SELECTED ? focalSets[0].focal_sets_id : selectedFocalSetId}
         onChange={onFocalSetSelected}
         fullWidth
         inputProps={{
