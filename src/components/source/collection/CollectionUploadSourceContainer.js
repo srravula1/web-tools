@@ -75,7 +75,7 @@ class CollectionUploadSourceContainer extends React.Component {
     return (
       <div>
         <p>
-          <FormattedMessage {...localMessages.helpText} />
+          <> <FormattedMessage {...localMessages.helpText} /> <a href="https://mediacloud.org/support/source-list-download"> Read our documentation</a> about how to fill this spreadsheet in.</>
         </p>
         <a href="#download" onClick={this.downloadCsv}>
           {downloadLabel}
