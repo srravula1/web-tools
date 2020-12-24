@@ -137,7 +137,6 @@ const fetchAsyncData = (dispatch) => {
 };
 
 export default
-// hot(
 injectIntl(
   connect(mapStateToProps)(
     withAsyncData(fetchAsyncData)(

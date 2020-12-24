@@ -10,6 +10,7 @@ import LoginForm from '../../user/LoginForm';
 import SearchForm from './SearchForm';
 import { getDateRange, solrFormat, PAST_MONTH } from '../../../lib/dateUtil';
 import { autoMagicQueryLabel, serializeQueriesForUrl } from '../../../lib/explorerUtil';
+import TrackingEvent from '../../../lib/tracking';
 import { emptyString } from '../../../lib/formValidators';
 import ExplorerMarketingFeatureList from './ExplorerMarketingFeatureList';
 import SystemStatsContainer from '../../common/statbar/SystemStatsContainer';
@@ -100,6 +101,7 @@ const mapDispatchToProps = dispatch => ({
     }];
     queries[0].label = autoMagicQueryLabel(queries[0]);
     dispatch(push(`/queries/search?qs=${serializeQueriesForUrl(queries)}&auto=true`));
+    TrackingEvent('mc.bi.explorer.search', 'clicked');
   },
 });
 
